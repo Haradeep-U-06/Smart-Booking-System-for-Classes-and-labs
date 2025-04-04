@@ -1,0 +1,20 @@
+### Get all classrooms with their schedules
+GET http://localhost:4000/classroom-api/classroom
+
+### Cancel a pre-scheduled class (Only assigned faculty can cancel)
+PUT http://localhost:4000/classroom-api/cancel-class/67f020cc8f94fabf3379a1ba
+Content-Type:application/json
+
+{
+    "capacity":75     
+}
+
+### Get all bookings
+GET http://localhost:4000/booking-api/booking
+
+### Book a classroom
+POST http://localhost:4000/booking-api/bookings
+Conten-Type:application/json
+
+### Unbook a faculty-booked slot
+DELETE http://localhost:4000/booking-api/unbook/:bookingId
