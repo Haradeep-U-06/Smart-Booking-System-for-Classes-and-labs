@@ -24,10 +24,6 @@ classroomApp.post('/classrooms', expressAsyncHandler(async(req, res) => {
 }))
 
 // Cancel a pre-scheduled class (Only assigned faculty can cancel)
-// const getDayFromDate = (dateString) => {
-//     return new Date(dateString).toLocaleDateString('en-US', { weekday: 'long' });
-// };
-
 classroomApp.put('/cancel-class/:classroomId', expressAsyncHandler(async (req, res) => {
     const { classroomId } = req.params;
     const { facultyId, date, startTime, endTime } = req.body;
@@ -125,5 +121,81 @@ classroomApp.get('/schedule/:date', expressAsyncHandler(async(req, res) => {
     }
 }));
 
+// Get available slots for booking
+classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) => {
+    const { date } = req.params;
+  const selectedDate = new Date(date);
+  const dayOfWeek = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+
+  const timeSlots = [
+    { startTime: "10:00", endTime: "11:00" },
+    { startTime: "11:00", endTime: "12:00" },
+    { startTime: "12:00", endTime: "13:00" },
+    { startTime: "13:40", endTime: "14:40" },
+    { startTime: "14:40", endTime: "15:40" },
+    { startTime: "15:40", endTime: "16:40" }
+  ];
+
+  const labTimeSlots = [
+    { startTime: "10:00", endTime: "13:00" },
+    { startTime: "13:40", endTime: "16:40" }
+  ];
+
+  const classrooms = await Classroom.find();
+
+  const result = [];
+
+  for (const room of classrooms) {
+    const scheduledDay = room.timetable.find(d => d.day === dayOfWeek);
+    const scheduledSlots = scheduledDay ? scheduledDay.slots : [];
+
+    const bookings = await Booking.find({ classroomId: room._id, date });
+
+    const canceled = room.canceledSlots.filter(cs => cs.date === date);
+
+    const occupied = [
+      ...scheduledSlots.map(s => ({
+        startTime: s.startTime,
+        endTime: s.endTime,
+        facultyName: s.facultyName || null
+      })),
+      ...bookings.map(b => ({
+        startTime: b.startTime,
+        endTime: b.endTime,
+        facultyName: b.facultyName || null
+      }))
+    ].filter(slot =>
+      !canceled.some(c => c.startTime === slot.startTime && c.endTime === slot.endTime)
+    );
+
+    const slots = (room.type === "Lab" ? labTimeSlots : timeSlots).map(slot => {
+      const canceledSlot = canceled.find(
+        c => c.startTime === slot.startTime && c.endTime === slot.endTime
+      );
+      const takenSlot = occupied.find(
+        s => s.startTime === slot.startTime && s.endTime === slot.endTime
+      );
+
+      const isTaken = !!takenSlot;
+
+      return {
+        ...slot,
+        available: !isTaken || !!canceledSlot,
+        type: canceledSlot ? "Canceled" : isTaken ? "Taken" : "Available",
+        bookedBy: takenSlot?.facultyName || null
+      };
+    });
+
+    result.push({
+      roomId: room._id,
+      roomName: room.name,
+      capacity: room.capacity,
+      type: room.type,
+      slots
+    });
+  }
+
+  res.status(200).json({ payload: result });
+}));
 
 module.exports = classroomApp

@@ -27,8 +27,31 @@ bookingApp.post('/bookings', expressAsyncHandler(async(req, res) => {
         const isScheduled = classroom.timetable.some(day => day.day === weekday && day.slots.some(slot => slot.startTime === startTime && slot.endTime === endTime));
         const isBooked = await Booking.findOne({classroomId, date, startTime, endTime});
 
+        // check for overlapping
+        let existingSlots = [];
+        // Adding scheduled slots for the weekday
+        const daySchedule = classroom.timetable.find(d => d.day === weekday);
+        if (daySchedule && daySchedule.slots) {
+            existingSlots = [...existingSlots, ...daySchedule.slots];
+        }
+        // Adding already booked slots on that day
+        const bookings = await Booking.find({classroomId, date});
+        existingSlots = [...existingSlots, ...bookings];
+        const toMinutes = t => parseInt(t.split(':')[0])*60 + parseInt(t.split(':')[1]);
+        const requestedStart = toMinutes(startTime);
+        const requestedEnd = toMinutes(endTime);
+        const isOverlapping = existingSlots.some(slot => {
+            const slotStart = toMinutes(slot.startTime);
+            const slotEnd = toMinutes(slot.endTime);
+            return requestedStart < slotEnd && requestedEnd > slotStart;
+        });
+
         if (isScheduled || isBooked) {
             return res.status(400).send({error:"Slot is already scheduled/booked"});
+        }
+
+        if (isOverlapping) {
+            return res.status(400).send({error:"Time slot overlaps with an existing schedule or booking"});
         }
 
         // Save the booking
