@@ -23,7 +23,8 @@ bookingApp.post('/bookings', expressAsyncHandler(async(req, res) => {
         if (!classroom) return res.status(404).send({error:"Classroom not found"});
 
         // Check if the slot is in timetable or already booked
-        const isScheduled = classroom.timetable.some(day => day.slots.some(slot => slot.startTime === startTime && slot.endTime === endTime));
+        const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+        const isScheduled = classroom.timetable.some(day => day.day === weekday && day.slots.some(slot => slot.startTime === startTime && slot.endTime === endTime));
         const isBooked = await Booking.findOne({classroomId, date, startTime, endTime});
 
         if (isScheduled || isBooked) {

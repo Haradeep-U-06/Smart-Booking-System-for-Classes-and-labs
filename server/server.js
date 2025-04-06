@@ -1,11 +1,13 @@
 const exp = require('express')
 const app = exp()
+app.use(exp.json());
 require('dotenv').config()
 const mongoose = require('mongoose')
 const classroomApp = require('./APIs/classroomApi')
 const bookingApp = require('./APIs/bookingApi')
 const cors = require('cors')
 app.use(cors())
+
 
 const port = process.env.PORT || 4000
 
