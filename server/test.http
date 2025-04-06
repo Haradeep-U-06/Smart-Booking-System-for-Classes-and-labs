@@ -2,7 +2,10 @@
 GET http://localhost:4000/classroom-api/classroom
 
 ### Fetch schedules and bookings for a specific date
-GET http://localhost:4000/classroom-api/schedule/2025-04-07
+GET http://localhost:4000/classroom-api/schedule/2025-04-08
+
+### Get available slots for booking
+GET http://localhost:4000/classroom-api/available-slots/2025-04-08
 
 ### Post a classroom data with its schedule
 POST http://localhost:4000/classroom-api/classrooms 
@@ -13,14 +16,14 @@ Content-Type: application/json
 }
 
 ### Cancel a pre-scheduled class (Only assigned faculty can cancel)
-PUT http://localhost:4000/classroom-api/cancel-class/67f289aae47c50a216643c3e
+PUT http://localhost:4000/classroom-api/cancel-class/67f2cb685a457ea1a9b71238
 Content-Type:application/json
 
 {
-    "facultyId":3,
-    "date":"2025-04-10",
-    "startTime":"11:00",
-    "endTime":"12:00"     
+    "facultyId":7,
+    "date":"2025-04-08",
+    "startTime":"10:00",
+    "endTime":"13:00"     
 }
 
 ### Get all bookings
@@ -34,11 +37,11 @@ Content-Type: application/json
     "facultyId":1,
     "facultyName":"Vasundhara",
     "email":"testemail@email.com",
-    "classroomId":"67f289aae47c50a216643c3e",
+    "classroomId":"67f2cb685a457ea1a9b71238",
     "date":"2025-04-08",
-    "startTime":"11:00",
-    "endTime":"12:00"
+    "startTime":"13:40",
+    "endTime":"16:40"
 }
 
 ### Unbook a faculty-booked slot
-DELETE http://localhost:4000/booking-api/unbook/67f29ae6e62ce1889c5bc43a
+DELETE http://localhost:4000/booking-api/unbook/67f2b84ba071fc55480f55cd
