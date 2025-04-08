@@ -37,11 +37,43 @@ Content-Type: application/json
     "facultyId":1,
     "facultyName":"Vasundhara",
     "email":"testemail@email.com",
-    "classroomId":"67f2cb685a457ea1a9b71238",
+    "classroomId":"67f285bfbb45d0893046e4cb",
     "date":"2025-04-08",
-    "startTime":"13:40",
+    "startTime":"15:40",
     "endTime":"16:40"
 }
 
 ### Unbook a faculty-booked slot
 DELETE http://localhost:4000/booking-api/unbook/67f2b84ba071fc55480f55cd
+
+### Get all teachers data
+GET http://localhost:4000/teacher-api/teacher/23071a05f1@vnrvjiet.in
+
+### Entry of a teacher
+POST http://localhost:4000/teacher-api/teachers
+Content-Type: application/json
+
+{
+    "name":"RishiVarma",
+    "email":"rishivarma.d@gmail.com"
+}
+
+### Delete teacher data
+DELETE http://localhost:4000/teacher-api/del/67f399e8d11678d5986d6f09
+
+### Get teachers By email
+GET http://localhost:4000/id-teacher-api/teacherId/rishivarma.d@gmail.com
+
+
+### Entry of a teacher
+POST http://localhost:4000/id-teacher-api/teachersId
+Content-Type: application/json
+
+{
+    "id":2,
+    "name":"King Rishi Varma",
+    "email":"rishivarma.d@gmail.com"
+}
+
+### Delete teacehr data
+DELETE http://localhost:4000/id-teacher-api/delete/67f371235c175a3238803f3f

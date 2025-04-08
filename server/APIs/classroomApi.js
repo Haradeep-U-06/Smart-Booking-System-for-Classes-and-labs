@@ -115,7 +115,7 @@ classroomApp.get('/schedule/:date', expressAsyncHandler(async(req, res) => {
                 schedule: [...scheduledClasses, ...roomBookings]
             };
         });
-        res.send({payload:schedule});
+        res.status(200).send({payload:schedule});
     } catch(error) {
         res.status(500).send({message: "Error fetching schedule", error})
     }
