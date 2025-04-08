@@ -2,7 +2,7 @@
 GET http://localhost:4000/classroom-api/classroom
 
 ### Fetch schedules and bookings for a specific date
-GET http://localhost:4000/classroom-api/schedule/2025-04-07
+GET http://localhost:4000/classroom-api/schedule/2025-04-20
 
 ### Post a classroom data with its schedule
 POST http://localhost:4000/classroom-api/classrooms 
@@ -13,14 +13,14 @@ Content-Type: application/json
 }
 
 ### Cancel a pre-scheduled class (Only assigned faculty can cancel)
-PUT http://localhost:4000/classroom-api/cancel-class/67f289aae47c50a216643c3e
+PUT http://localhost:4000/classroom-api/cancel-class/67f285bfbb45d0893046e4cb
 Content-Type:application/json
 
 {
     "facultyId":3,
-    "date":"2025-04-10",
-    "startTime":"11:00",
-    "endTime":"12:00"     
+    "date":"2025-04-08",
+    "startTime":"14:40",
+    "endTime":"15:40"     
 }
 
 ### Get all bookings
@@ -34,15 +34,14 @@ Content-Type: application/json
     "facultyId":1,
     "facultyName":"Vasundhara",
     "email":"testemail@email.com",
-    "classroomId":"67f289aae47c50a216643c3e",
+    "classroomId":"67f285bfbb45d0893046e4cb",
     "date":"2025-04-08",
-    "startTime":"11:00",
-    "endTime":"12:00"
+    "startTime":"15:40",
+    "endTime":"16:40"
 }
 
 ### Unbook a faculty-booked slot
-DELETE http://localhost:4000/booking-api/unbook/67f29ae6e62ce1889c5bc43a
-
+DELETE http://localhost:4000/booking-api/unbook/67f2b84ba071fc55480f55cd
 
 ### Get all teachers data
 GET http://localhost:4000/teacher-api/teacher/23071a05f1@vnrvjiet.in
@@ -58,8 +57,9 @@ Content-Type: application/json
 
 ### Delete teacher data
 DELETE http://localhost:4000/teacher-api/del/67f399e8d11678d5986d6f09
-### Get teachers By Id
-GET http://localhost:4000/id-teacher-api/teacherId/sadhamhussain@gmail.com
+
+### Get teachers By email
+GET http://localhost:4000/id-teacher-api/teacherId/rishivarma.d@gmail.com
 
 
 ### Entry of a teacher
