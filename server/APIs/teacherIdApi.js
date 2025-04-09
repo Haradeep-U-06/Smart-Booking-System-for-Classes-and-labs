@@ -31,7 +31,7 @@ teacherIdApp.post('/teachersId', expressAsyncHandler(async(req, res) => {
 }));
 
 
-//Delete Teacher Using Id
+//Delete Deafult Teacher Using Id
 teacherIdApp.delete('/delete/:teacherId', expressAsyncHandler(async(req, res) => {
     try {
         const teach=await TeacherId.findByIdAndDelete(req.params.teacherId);

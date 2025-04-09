@@ -45,7 +45,7 @@ classroomApp.put('/cancel-class/:classroomId', expressAsyncHandler(async (req, r
                         String(slot.facultyId) === String(facultyId) // Ensures match even if one is number, one is string
                     ) {
                         slotRemoved = true;
-                        return false; // Remove this slot
+                        return true; // no need to Remove this slot
                     }
                     return true; // Keep other slots
                 });
@@ -89,6 +89,7 @@ classroomApp.get('/schedule/:date', expressAsyncHandler(async(req, res) => {
                             startTime: slot.startTime,
                             endTime: slot.endTime,
                             section: slot.section,
+                            facultyId: slot.facultyId,
                             facultyName: slot.facultyName,
                             subject: slot.subject,
                             type: "Scheduled"
@@ -103,6 +104,7 @@ classroomApp.get('/schedule/:date', expressAsyncHandler(async(req, res) => {
             .map(booking => ({
                 startTime: booking.startTime,
                 endTime: booking.endTime,
+                facultyId: booking.facultyId,
                 facultyName: booking.facultyName,
                 type: "Booked"
             }));
@@ -146,30 +148,58 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
   const result = [];
 
   for (const room of classrooms) {
-    const scheduledDay = room.timetable.find(d => d.day === dayOfWeek);
-    const scheduledSlots = scheduledDay ? scheduledDay.slots : [];
+    let scheduledSlots = [];
+    const daySchedule = room.timetable.find(d => d.day === dayOfWeek);
+    if (daySchedule && daySchedule.slots) {
+        daySchedule.slots.forEach(slot => {
+            const isCancelled = room.canceledSlots?.some(cs => cs.date === date && cs.startTime === slot.startTime && cs.endTime === slot.endTime);
+            if (!isCancelled) {
+                scheduledSlots.push(slot)
+            }
+        });
+    }
 
     const bookings = await Booking.find({ classroomId: room._id, date });
-
-    const canceled = room.canceledSlots.filter(cs => cs.date === date);
 
     const occupied = [
       ...scheduledSlots.map(s => ({
         startTime: s.startTime,
         endTime: s.endTime,
-        facultyName: s.facultyName || null
+        facultyName: s.facultyName || null,
+        facultyId: s.facultyId || null
       })),
       ...bookings.map(b => ({
         startTime: b.startTime,
         endTime: b.endTime,
-        facultyName: b.facultyName || null
+        facultyName: b.facultyName || null,
+        facultyId: b.facultyId || null
       }))
-    ].filter(slot =>
-      !canceled.some(c => c.startTime === slot.startTime && c.endTime === slot.endTime)
-    );
+    ]
+
+    const canceled = room.canceledSlots.filter(cs => cs.date === date);
+
+    // const occupied = [
+    //   ...scheduledSlots.map(s => ({
+    //     startTime: s.startTime,
+    //     endTime: s.endTime,
+    //     facultyName: s.facultyName || null,
+    //     facultyId: s.facultyId || null
+    //   })),
+    //   ...bookings.map(b => ({
+    //     startTime: b.startTime,
+    //     endTime: b.endTime,
+    //     facultyName: b.facultyName || null,
+    //     facultyId: b.facultyId || null
+    //   }))
+    // ].filter(slot =>
+    //   !canceled.some(c => c.startTime === slot.startTime && c.endTime === slot.endTime)
+    // );
 
     const slots = (room.type === "Lab" ? labTimeSlots : timeSlots).map(slot => {
-      const canceledSlot = canceled.find(
+      const book = bookings.find(
+        c => c.startTime === slot.startTime && c.endTime === slot.endTime
+      );
+      const canceledSlot = book ? null : canceled.find(
         c => c.startTime === slot.startTime && c.endTime === slot.endTime
       );
       const takenSlot = occupied.find(
@@ -182,7 +212,8 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
         ...slot,
         available: !isTaken || !!canceledSlot,
         type: canceledSlot ? "Canceled" : isTaken ? "Taken" : "Available",
-        bookedBy: takenSlot?.facultyName || null
+        bookedBy: takenSlot?.facultyName || null,
+        bookedById: takenSlot?.facultyId || null
       };
     });
 

@@ -2,28 +2,43 @@
 GET http://localhost:4000/classroom-api/classroom
 
 ### Fetch schedules and bookings for a specific date
-GET http://localhost:4000/classroom-api/schedule/2025-04-08
+GET http://localhost:4000/classroom-api/schedule/2025-04-14
 
 ### Get available slots for booking
-GET http://localhost:4000/classroom-api/available-slots/2025-04-08
+GET http://localhost:4000/classroom-api/available-slots/2025-04-16
 
 ### Post a classroom data with its schedule
 POST http://localhost:4000/classroom-api/classrooms 
 Content-Type: application/json
 
-{
-    "name":"PEB-12","capacity":50,"type":"Classroom","timetable":[{"day":"Monday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"}]},{"day":"Tuesday","slots":[{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}]},{"day":"Wednesday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"6","facultyName":"Lakshmi Bhavani","subject":"Intellectual Property Rights"}]}, {"day":"Thursday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}, {"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"}]},{"day":"Friday","slots":[{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}, {"startTime":"15:40","endTime":"16:40","section":"CSE-C","facultyId":"6","facultyName":"Lakshmi Bhavani","subject":"Intellectual Property Rights"}]},{"day":"Saturday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"},{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"}]}]
-}
+# {
+#     "name":"PEB-12","capacity":50,"type":"Classroom","timetable":[{"day":"Monday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"}]},{"day":"Tuesday","slots":[{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}]},{"day":"Wednesday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"6","facultyName":"Lakshmi Bhavani","subject":"Intellectual Property Rights"}]}, {"day":"Thursday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}, {"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"}]},{"day":"Friday","slots":[{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"},{"startTime":"14:40","endTime":"15:40","section":"CSE-C","facultyId":"1","facultyName":"Vasundhara","subject":"Operating System"}, {"startTime":"15:40","endTime":"16:40","section":"CSE-C","facultyId":"6","facultyName":"Lakshmi Bhavani","subject":"Intellectual Property Rights"}]},{"day":"Saturday","slots":[{"startTime":"10:00","endTime":"11:00","section":"CSE-C","facultyId":"4","facultyName":"Bharath Kumar","subject":"Software Engineering"},{"startTime":"11:00","endTime":"12:00","section":"CSE-C","facultyId":"3","facultyName":"Sudheshna","subject":"Design and Analysis of Algorithms"},{"startTime":"12:00","endTime":"13:00","section":"CSE-C","facultyId":"5","facultyName":"Pratyusha","subject":"Engineering Economics and Accountancy"},{"startTime":"13:40","endTime":"14:40","section":"CSE-C","facultyId":"2","facultyName":"Sireesha","subject":"Computer Organization"}]}]
+# }
+
+ {
+    "name": "WAD Lab",
+    "capacity": 60,
+    "type": "Lab",
+    "timetable": [
+      { "day": "Monday", "slots": [] },
+      { "day": "Tuesday", "slots": [{"startTime":"10:00","endTime":"13:00","section":"CSE-C","facultyId":8,"facultyName":"Rajesh","subject":"Web Application Development"}] },
+      { "day": "Wednesday", "slots": [] },
+      { "day": "Thursday", "slots": [] },
+      { "day": "Friday", "slots": [] },
+      { "day": "Saturday", "slots": [] }
+    ],
+    "canceledSlots": []
+  }
 
 ### Cancel a pre-scheduled class (Only assigned faculty can cancel)
-PUT http://localhost:4000/classroom-api/cancel-class/67f2cb685a457ea1a9b71238
+PUT http://localhost:4000/classroom-api/cancel-class/67f567c896fb446d976b5a08
 Content-Type:application/json
 
 {
-    "facultyId":7,
-    "date":"2025-04-08",
-    "startTime":"10:00",
-    "endTime":"13:00"     
+    "facultyId":1,
+    "date":"2025-04-15",
+    "startTime":"14:40",
+    "endTime":"15:40"     
 }
 
 ### Get all bookings
@@ -34,17 +49,17 @@ POST http://localhost:4000/booking-api/bookings
 Content-Type: application/json
 
 {
-    "facultyId":1,
-    "facultyName":"Vasundhara",
-    "email":"testemail@email.com",
-    "classroomId":"67f285bfbb45d0893046e4cb",
-    "date":"2025-04-08",
-    "startTime":"15:40",
-    "endTime":"16:40"
+    "facultyId":9,
+    "facultyName":"Karthik",
+    "email":"karthikgajavelly0017@gmail.com",
+    "classroomId":"67f567c896fb446d976b5a08",
+    "date":"2025-04-14",
+    "startTime":"12:00",
+    "endTime":"13:00"
 }
 
 ### Unbook a faculty-booked slot
-DELETE http://localhost:4000/booking-api/unbook/67f2b84ba071fc55480f55cd
+DELETE http://localhost:4000/booking-api/unbook/67f56d3496fb446d976b5c3f
 
 ### Get all teachers data
 GET http://localhost:4000/teacher-api/teacher/23071a05f1@vnrvjiet.in
@@ -61,19 +76,19 @@ Content-Type: application/json
 ### Delete teacher data
 DELETE http://localhost:4000/teacher-api/del/67f399e8d11678d5986d6f09
 
-### Get teachers By email
-GET http://localhost:4000/id-teacher-api/teacherId/rishivarma.d@gmail.com
+### Get teachers in teachersId By email
+GET http://localhost:4000/id-teacher-api/teacherId/karthikgajavelly0017@gmail.com
 
 
-### Entry of a teacher
+### Entry of a teacher by id
 POST http://localhost:4000/id-teacher-api/teachersId
 Content-Type: application/json
 
 {
-    "id":2,
-    "name":"King Rishi Varma",
-    "email":"rishivarma.d@gmail.com"
+    "id":1,
+    "name":"Karthik",
+    "email":"karthikgajavelly0017@gmail.com"
 }
 
 ### Delete teacehr data
-DELETE http://localhost:4000/id-teacher-api/delete/67f371235c175a3238803f3f
+DELETE http://localhost:4000/id-teacher-api/delete/67f5872327f76ed647967072

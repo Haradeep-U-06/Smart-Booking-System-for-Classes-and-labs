@@ -24,17 +24,24 @@ bookingApp.post('/bookings', expressAsyncHandler(async(req, res) => {
 
         // Check if the slot is in timetable or already booked
         const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
-        const isScheduled = classroom.timetable.some(day => day.day === weekday && day.slots.some(slot => slot.startTime === startTime && slot.endTime === endTime));
-        const isBooked = await Booking.findOne({classroomId, date, startTime, endTime});
 
         // check for overlapping
         let existingSlots = [];
         // Adding scheduled slots for the weekday
         const daySchedule = classroom.timetable.find(d => d.day === weekday);
         if (daySchedule && daySchedule.slots) {
-            existingSlots = [...existingSlots, ...daySchedule.slots];
+            daySchedule.slots.forEach(slot => {
+                const isCancelled = classroom.canceledSlots?.some(cs => cs.date === date && cs.startTime === slot.startTime && cs.endTime === slot.endTime);
+                if (!isCancelled) {
+                    existingSlots.push(slot)
+                }
+            });
         }
-        // Adding already booked slots on that day
+
+        const isScheduled = existingSlots.some(slot => slot.startTime === startTime && slot.endTime === endTime);
+        const isBooked = await Booking.findOne({classroomId, date, startTime, endTime});
+
+        // // check for overlapping
         const bookings = await Booking.find({classroomId, date});
         existingSlots = [...existingSlots, ...bookings];
         const toMinutes = t => parseInt(t.split(':')[0])*60 + parseInt(t.split(':')[1]);

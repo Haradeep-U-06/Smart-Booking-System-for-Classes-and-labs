@@ -29,7 +29,7 @@ teacherApp.post('/teachers', expressAsyncHandler(async(req, res) => {
     }
 }));
 
-// Delete a teacher from
+// Delete a teacher
 teacherApp.delete('/del/:teacherId', expressAsyncHandler(async(req, res) => {
     try {
         const teach=await Teacher.findByIdAndDelete(req.params.teacherId);
