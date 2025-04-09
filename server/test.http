@@ -2,10 +2,10 @@
 GET http://localhost:4000/classroom-api/classroom
 
 ### Fetch schedules and bookings for a specific date
-GET http://localhost:4000/classroom-api/schedule/2025-04-14
+GET http://localhost:4000/classroom-api/schedule/2025-04-10
 
 ### Get available slots for booking
-GET http://localhost:4000/classroom-api/available-slots/2025-04-16
+GET http://localhost:4000/classroom-api/available-slots/2025-04-07
 
 ### Post a classroom data with its schedule
 POST http://localhost:4000/classroom-api/classrooms 
@@ -49,13 +49,13 @@ POST http://localhost:4000/booking-api/bookings
 Content-Type: application/json
 
 {
-    "facultyId":9,
+    "facultyId":1,
     "facultyName":"Karthik",
     "email":"karthikgajavelly0017@gmail.com",
-    "classroomId":"67f567c896fb446d976b5a08",
-    "date":"2025-04-14",
-    "startTime":"12:00",
-    "endTime":"13:00"
+    "classroomId":"67f6dd07e639727a4fa97192",
+    "date":"2025-04-07",
+    "startTime":"10:00",
+    "endTime":"11:00"
 }
 
 ### Unbook a faculty-booked slot

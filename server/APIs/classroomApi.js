@@ -178,23 +178,6 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
 
     const canceled = room.canceledSlots.filter(cs => cs.date === date);
 
-    // const occupied = [
-    //   ...scheduledSlots.map(s => ({
-    //     startTime: s.startTime,
-    //     endTime: s.endTime,
-    //     facultyName: s.facultyName || null,
-    //     facultyId: s.facultyId || null
-    //   })),
-    //   ...bookings.map(b => ({
-    //     startTime: b.startTime,
-    //     endTime: b.endTime,
-    //     facultyName: b.facultyName || null,
-    //     facultyId: b.facultyId || null
-    //   }))
-    // ].filter(slot =>
-    //   !canceled.some(c => c.startTime === slot.startTime && c.endTime === slot.endTime)
-    // );
-
     const slots = (room.type === "Lab" ? labTimeSlots : timeSlots).map(slot => {
       const book = bookings.find(
         c => c.startTime === slot.startTime && c.endTime === slot.endTime
