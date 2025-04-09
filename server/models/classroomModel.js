@@ -20,7 +20,7 @@ const classroomSchema = new mongoose.Schema({
                     startTime : {
                         type : String 
                     }, endTime : {
-                        type : String 
+                        type : String
                     }, section : {
                         type : String 
                     }, facultyId : {
