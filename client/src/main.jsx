@@ -8,8 +8,8 @@ import Home from './common/Home.jsx'
 import Signin from './common/Signin.jsx'
 import Signup from './common/Signup.jsx'
 import Userprofile from './common/Userprofile.jsx'
-import Available from './components/Available.jsx'
-import Booked from './components/Booked.jsx'
+import Book from './components/Book.jsx'
+import Cancel from './components/Cancel.jsx'
 import TeacherContexts from './contexts/TeacherContexts.jsx';
 import Idcontexts from './contexts/Idcontexts.jsx';
 
@@ -35,12 +35,12 @@ const browserRouterObj=createBrowserRouter([
         element:<Userprofile/>
       },
       {
-        path:"available",
-        element:<Available/>
+        path:"book",
+        element:<Book/>
       },
       {
-        path:"booked",
-        element:<Booked/>
+        path:"cancel",
+        element:<Cancel/>
       }
     ]
   }

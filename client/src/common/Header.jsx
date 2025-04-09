@@ -38,6 +38,12 @@ function Header() {
               <div>
               <button className='btn btn-danger' onClick={handleSignout}>Signout</button>
             </div>
+            <div>
+              <Link to="book">Book</Link>
+            </div>
+            <div>
+              <Link to="cancel">Cancel a pre-scheduled Class</Link>
+            </div>
             </div>
           }
        
