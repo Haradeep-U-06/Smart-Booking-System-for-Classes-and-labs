@@ -6,16 +6,19 @@ import { idContextObj } from '../contexts/Idcontexts'
 function Book() {
     const { currentTeacher } = useContext(teacherContextObj)
     const { currentId } = useContext(idContextObj)
-    console.log(currentTeacher, currentId)
+    // console.log(currentTeacher, currentId)
 
     const [date, setDate] = useState('');
     const [slotsData, setSlotsData] = useState([]);
+    const [bookingsData, setBookingsData] = useState([]);
 
     async function fetchSlots() {
         if (!date) return;
         try {
             const result = await axios.get(`http://localhost:4000/classroom-api/available-slots/${date}`);
             setSlotsData(result.data.payload);
+            const bookings = await axios.get('http://localhost:4000/booking-api/booking');
+            setBookingsData(bookings.data.payload);
         } catch (err) {
             console.error("Error fetching slots:", err.message);
             alert("Failed to fetch slots. Please try again later.");
@@ -36,8 +39,28 @@ function Book() {
             alert('Slot booked successfully!');
             fetchSlots(); // Refresh after booking
         } catch (err) {
-            console.error("Booking error:", err.message);
+            console.log("Booking error:", err.message);
             alert("Booking failed. Please check your access or try again later.");
+        }
+    }
+
+    function isBooked(type, facultyId, roomId, startTime, endTime) {
+        if (Number(facultyId) === Number(currentId) && type === "Taken") {
+            return bookingsData.some(b => b.date === date && b.classroomId === roomId && b.facultyId === facultyId && b.startTime === startTime && b.endTime && endTime);
+        }
+        return false;
+    }
+
+    async function handleUnBook(facultyId, roomId, startTime, endTime) {
+        try {
+            const b = bookingsData.filter(b => b.date === date && b.classroomId === roomId && b.facultyId === facultyId && b.startTime === startTime && b.endTime === endTime);
+            await axios.delete(`http://localhost:4000/booking-api/unbook/${b[0]._id}`);
+            const bookings = await axios.get('http://localhost:4000/booking-api/booking');
+            setBookingsData(bookings.data.payload);
+            fetchSlots(); // Refresh after booking
+            alert('Booking Canceled!');
+        } catch(err) {
+            console.log("Booking error:", err.message);
         }
     }
 
@@ -59,9 +82,8 @@ function Book() {
                                     <div key={i} style={{
                                         border: "1px solid #ccc",
                                         padding: "8px",
-                                        backgroundColor:
-                                            slot.type === "Available" ? "green" :
-                                            slot.type === "Canceled" ? "orange" : "red",
+                                        backgroundColor: isBooked( slot.type, slot.bookedById, room.roomId,slot.startTime, slot.endTime) ? "black" : (slot.type === "Available" ? "green" :
+                                            slot.type === "Canceled" ? "orange" : "red"),
                                         color: "white",
                                         minWidth: "130px"
                                     }}>
@@ -71,6 +93,11 @@ function Book() {
                                         {slot.available && (
                                             <button onClick={() => handleBook(room.roomId, slot.startTime, slot.endTime)}>Book</button>
                                         )}
+                                        {
+                                            isBooked( slot.type, slot.bookedById, room.roomId,slot.startTime, slot.endTime) && (
+                                                <button onClick={() => handleUnBook(slot.bookedById, room.roomId, slot.startTime, slot.endTime)}>Unbook</button>
+                                            )
+                                        }
                                     </div>
                                 ))
                             }
