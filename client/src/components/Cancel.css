@@ -1,0 +1,51 @@
+/* Import the Book styles for consistency */
+@import './Book.css';
+
+/* Additional styles specific to Cancel component */
+.time-slot-scheduled {
+  background-color: #6610f2;
+}
+
+.cancel-btn {
+  margin-top: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Enhanced room schedule display */
+.schedule-title {
+  color: #333;
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+.room-card {
+  margin-bottom: 1.5rem;
+}
+
+.time-slot.time-slot-scheduled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty schedule message */
+.no-data {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.booking-header p {
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}

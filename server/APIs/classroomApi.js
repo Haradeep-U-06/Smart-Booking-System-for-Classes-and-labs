@@ -15,13 +15,118 @@ classroomApp.get('/classroom', expressAsyncHandler(async(req, res) => {
     }
 }))
 
-// Post a classroom data with its schedule
+// Post a classroom data with its schedule - with duplicate check
 classroomApp.post('/classrooms', expressAsyncHandler(async(req, res) => {
     const classroom = req.body;
-    let newClassroom = new Classroom(classroom);
-    let newClassroomDoc = await newClassroom.save();
-    res.status(201).send({message:"New Classroom Added", payload:newClassroomDoc});
-}))
+    
+    try {
+        // Check if a classroom with the same name already exists
+        const existingClassroom = await Classroom.findOne({ name: classroom.name });
+        
+        if (existingClassroom) {
+            // Update the existing classroom's timetable
+            // Combine the timetables, keeping unique days
+            const updatedTimetable = [...existingClassroom.timetable];
+            
+            // For each day in the new request
+            classroom.timetable.forEach(newDaySchedule => {
+                const existingDayIndex = updatedTimetable.findIndex(
+                    day => day.day === newDaySchedule.day
+                );
+                
+                // If day already exists in timetable, update the slots
+                if (existingDayIndex !== -1) {
+                    // Combine the existing and new slots
+                    updatedTimetable[existingDayIndex].slots = [
+                        ...updatedTimetable[existingDayIndex].slots,
+                        ...newDaySchedule.slots
+                    ];
+                } else {
+                    // If day doesn't exist, add the new day to timetable
+                    updatedTimetable.push(newDaySchedule);
+                }
+            });
+            
+            // Update the classroom with new combined timetable
+            existingClassroom.timetable = updatedTimetable;
+            
+            // Handle canceledSlots if they exist in the request
+            if (classroom.canceledSlots && classroom.canceledSlots.length > 0) {
+                existingClassroom.canceledSlots = [
+                    ...existingClassroom.canceledSlots,
+                    ...classroom.canceledSlots
+                ];
+            }
+            
+            const updatedClassroom = await existingClassroom.save();
+            return res.status(200).send({
+                message: "Classroom schedule updated",
+                payload: updatedClassroom
+            });
+        } else {
+            // If no existing classroom found, create a new one
+            let newClassroom = new Classroom(classroom);
+            let newClassroomDoc = await newClassroom.save();
+            return res.status(201).send({
+                message: "New Classroom Added", 
+                payload: newClassroomDoc
+            });
+        }
+    } catch (error) {
+        return res.status(500).send({
+            error: error.message
+        });
+    }
+}));
+
+// Add a dedicated update endpoint for more controlled updates
+classroomApp.put('/classrooms/:classroomId', expressAsyncHandler(async(req, res) => {
+    const { classroomId } = req.params;
+    const updates = req.body;
+    
+    try {
+        const classroom = await Classroom.findById(classroomId);
+        if (!classroom) return res.status(404).send({ error: "Classroom not found" });
+        
+        // Apply the updates
+        if (updates.name) classroom.name = updates.name;
+        if (updates.capacity) classroom.capacity = updates.capacity;
+        if (updates.type) classroom.type = updates.type;
+        
+        // Handle timetable updates with merging logic
+        if (updates.timetable && updates.timetable.length > 0) {
+            updates.timetable.forEach(newDaySchedule => {
+                const existingDayIndex = classroom.timetable.findIndex(
+                    day => day.day === newDaySchedule.day
+                );
+                
+                if (existingDayIndex !== -1) {
+                    // Merge slots for existing day
+                    classroom.timetable[existingDayIndex].slots = [
+                        ...classroom.timetable[existingDayIndex].slots,
+                        ...newDaySchedule.slots
+                    ];
+                } else {
+                    // Add new day
+                    classroom.timetable.push(newDaySchedule);
+                }
+            });
+        }
+        
+        // Handle canceledSlots updates
+        if (updates.canceledSlots && updates.canceledSlots.length > 0) {
+            classroom.canceledSlots = [
+                ...classroom.canceledSlots,
+                ...updates.canceledSlots
+            ];
+        }
+        
+        const updatedClassroom = await classroom.save();
+        res.send({ message: "Classroom updated successfully", payload: updatedClassroom });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+}));
 
 // Cancel a pre-scheduled class (Only assigned faculty can cancel)
 classroomApp.put('/cancel-class/:classroomId', expressAsyncHandler(async (req, res) => {
@@ -185,18 +290,33 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
       const canceledSlot = book ? null : canceled.find(
         c => c.startTime === slot.startTime && c.endTime === slot.endTime
       );
-      const takenSlot = occupied.find(
-        s => s.startTime === slot.startTime && s.endTime === slot.endTime
-      );
-
-      const isTaken = !!takenSlot;
+      
+      // IMPROVED OVERLAP DETECTION
+      const toMinutes = t => {
+        const [hours, minutes] = t.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+      
+      const slotStart = toMinutes(slot.startTime);
+      const slotEnd = toMinutes(slot.endTime);
+      
+      // Check if this slot overlaps with any scheduled/booked slot
+      const overlappingSlot = occupied.find(s => {
+        const occStart = toMinutes(s.startTime);
+        const occEnd = toMinutes(s.endTime);
+        
+        // Slots overlap if one starts before the other ends
+        return (slotStart < occEnd && slotEnd > occStart);
+      });
+      
+      const isTaken = !!overlappingSlot;
 
       return {
         ...slot,
         available: !isTaken || !!canceledSlot,
         type: canceledSlot ? "Canceled" : isTaken ? "Taken" : "Available",
-        bookedBy: takenSlot?.facultyName || null,
-        bookedById: takenSlot?.facultyId || null
+        bookedBy: overlappingSlot?.facultyName || null,
+        bookedById: overlappingSlot?.facultyId || null
       };
     });
 

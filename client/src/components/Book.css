@@ -1,0 +1,204 @@
+.booking-container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  min-height: 100%;
+}
+
+.booking-header {
+  margin-bottom: 1.5rem;
+}
+
+.booking-header h2 {
+  color: #0050b3;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* BookMyShow style date selector */
+.date-selector-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.date-selector {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+}
+
+.date-selector::-webkit-scrollbar {
+  height: 6px;
+}
+
+.date-selector::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.date-selector::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.date-item {
+  min-width: 75px;
+  padding: 0.75rem 0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.date-item:hover {
+  border-color: #0069d9;
+  background-color: #f0f7ff;
+}
+
+.date-item.selected {
+  background-color: #0069d9;
+  color: white;
+  border-color: #0069d9;
+  transform: scale(1.02);
+}
+
+.date-item .day-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.date-item .day-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.date-item .month {
+  font-size: 0.7rem;
+}
+
+/* Room styling */
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.room-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.room-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  background-color: #f5f9ff;
+}
+
+.room-header h3 {
+  margin: 0;
+  color: #0050b3;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.room-header .room-details {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.room-type-lab {
+  background-color: #fdf0f5;
+}
+
+.room-type-lab h3 {
+  color: #d63384;
+}
+
+.slots-container {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.time-slot {
+  border-radius: 6px;
+  padding: 1rem;
+  color: white;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.time-slot:hover {
+  transform: translateY(-2px);
+}
+
+.time-slot-available {
+  background-color: #4caf50;
+}
+
+.time-slot-canceled {
+  background-color: #ff9800;
+}
+
+.time-slot-taken {
+  background-color: #f44336;
+}
+
+.time-slot-booked {
+  background-color: #212529;
+}
+
+.time-slot .time {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.time-slot .status {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.time-slot .faculty {
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.time-slot button {
+  margin-top: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.time-slot button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.no-slots {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}

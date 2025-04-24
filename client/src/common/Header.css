@@ -133,3 +133,32 @@ header.bg-primary {
     width: 100%;
   }
 }
+
+/* Add these styles to your existing Header.css file */
+
+.logo-container {
+    text-decoration: none;
+    transition: transform 0.2s;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .logo-container:hover {
+    transform: scale(1.02);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-tagline {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+    font-weight: 400;
+    margin-top: -5px;
+    text-transform: uppercase;
+  }
