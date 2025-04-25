@@ -225,11 +225,11 @@ function Book() {
                                                         </button>
                                                     )}
                                                     
-                                                    {isUserBooked && (
+                                                    {/* {isUserBooked && (
                                                         <button onClick={() => handleUnBook(slot.bookedById, room.roomId, slot.startTime, slot.endTime)}>
                                                             Cancel Booking
                                                         </button>
-                                                    )}
+                                                    )} */}
                                                 </div>
                                             );
                                         })

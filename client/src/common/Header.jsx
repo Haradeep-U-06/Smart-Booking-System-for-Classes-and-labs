@@ -62,6 +62,7 @@ function Header() {
                   {/* Navigation links when signed in */}
                   <Link to="book" className="btn btn-outline-light me-2">Book</Link>
                   <Link to="cancel" className="btn btn-outline-light me-3">Cancel a Class</Link>
+                  <Link to="manage" className="btn btn-outline-light me-3">Manage Classes</Link>
                   
                   {/* User profile section */}
                   <div className="d-flex align-items-center gap-3">

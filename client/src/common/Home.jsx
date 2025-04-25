@@ -67,7 +67,7 @@ function Home() {
               {isSignedIn ? (
                 <div className="d-flex gap-3">
                   <a href="/book" className="btn btn-primary btn-lg">Book Now</a>
-                  <a href="/cancel" className="btn btn-outline-light btn-lg">Manage Bookings</a>
+                  <a href="/manage" className="btn btn-outline-light btn-lg">Manage Bookings</a>
                 </div>
               ) : (
                 <div className="d-flex gap-3">

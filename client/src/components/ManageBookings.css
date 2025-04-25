@@ -1,0 +1,182 @@
+/* Import shared styles from Book.css */
+@import './Book.css';
+
+.manage-bookings-container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  min-height: 100%;
+}
+
+/* Tab navigation */
+.tabs-container {
+  margin-top: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 1rem;
+  background: none;
+  border: none;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button:hover {
+  background-color: #f8f9fa;
+}
+
+.tab-button.active {
+  color: #0069d9;
+  border-bottom: 3px solid #0069d9;
+  background-color: #f0f7ff;
+}
+
+.tab-content {
+  padding: 1.5rem;
+}
+
+/* Section title */
+.section-title {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* Class cards */
+.classes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.class-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border-top: 4px solid #0069d9;
+  transition: transform 0.2s;
+}
+
+.class-card:hover {
+  transform: translateY(-3px);
+}
+
+.class-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f9ff;
+}
+
+.class-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0050b3;
+}
+
+.badge {
+  padding: 0.35rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-classroom {
+  background-color: #e6f7ff;
+  color: #0050b3;
+}
+
+.badge-lab {
+  background-color: #fdf0f5;
+  color: #d63384;
+}
+
+.class-details {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-item {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #666;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: #333;
+}
+
+.class-actions {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .classes-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabs-header {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .tab-button.active {
+    border-bottom: 1px solid #e0e0e0;
+    border-left: 3px solid #0069d9;
+  }
+}

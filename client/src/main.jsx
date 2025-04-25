@@ -10,6 +10,7 @@ import Signup from './common/Signup.jsx'
 import Userprofile from './common/Userprofile.jsx'
 import Book from './components/Book.jsx'
 import Cancel from './components/Cancel.jsx'
+import ManageBookings from './components/ManageBookings.jsx'
 import TeacherContexts from './contexts/TeacherContexts.jsx';
 import Idcontexts from './contexts/Idcontexts.jsx';
 
@@ -41,6 +42,10 @@ const browserRouterObj=createBrowserRouter([
       {
         path:"cancel",
         element:<Cancel/>
+      },
+      {
+        path:"manage",
+        element:<ManageBookings/>
       }
     ]
   }
@@ -50,8 +55,8 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <TeacherContexts>
       <Idcontexts>
-  <RouterProvider router={browserRouterObj}/>
-  </Idcontexts>
-  </TeacherContexts>
+        <RouterProvider router={browserRouterObj}/>
+      </Idcontexts>
+    </TeacherContexts>
   </StrictMode>,
 )
