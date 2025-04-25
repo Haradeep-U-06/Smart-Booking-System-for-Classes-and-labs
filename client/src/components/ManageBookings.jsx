@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext, useCallback } from 'react'
 import axios from 'axios'
 import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
+import { useNavigate } from 'react-router-dom' //new
+import { useUser } from '@clerk/clerk-react' //new
 import './ManageBookings.css'
 
 function ManageBookings() {
@@ -15,6 +17,8 @@ function ManageBookings() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('scheduled')
   const [lastRefresh, setLastRefresh] = useState(null)
+  const { isSignedIn, user, isLoaded } = useUser() // Add this to check auth state
+  const navigate = useNavigate() // For redirecting if needed
   
   // Generate 14 days for date selector (unchanged)
   useEffect(() => {
@@ -43,6 +47,44 @@ function ManageBookings() {
       setDate(dates[0].date)
     }
   }, [])
+
+// new start
+    // Add a new effect to handle authentication state
+    useEffect(() => {
+        // If Clerk has loaded and user is not signed in, redirect to login
+        if (isLoaded && !isSignedIn) {
+          navigate('/signin')
+          return
+        }
+        
+        // If auth loaded + signed in but no currentId in context, try to recover
+        if (isLoaded && isSignedIn && (!currentId || currentId.id === 0)) {
+          const recoverUserData = async () => {
+            try {
+              setIsLoading(true)
+              // Try to get user ID based on email
+              const email = user.emailAddresses[0]?.emailAddress
+              if (!email) throw new Error("No email available")
+              
+              const res = await axios.get(`http://localhost:4000/id-teacher-api/teacherId/${email}`)
+              
+              if (res.data.message === "Teacher Found By Email") {
+                // Recover the ID in context
+                setCurrentId(res.data.payload.id)
+                console.log("Recovered user ID after refresh:", res.data.payload.id)
+              }
+            } catch (err) {
+              console.error("Failed to recover user data after refresh:", err)
+              setError("Please sign out and sign in again to restore your session.")
+            } finally {
+              setIsLoading(false)
+            }
+          }
+                
+      recoverUserData()
+    }
+  }, [isLoaded, isSignedIn, currentId, user])
+//   new end
 
   // Use useCallback to memoize the fetchClassesData function
   const fetchClassesData = useCallback(async (silent = false) => {
@@ -92,7 +134,7 @@ function ManageBookings() {
             })
           })
         }
-      })
+      },[currentId,date])
       
       // Filter booked classes for the current user
       const userBookedClasses = bookingsData.filter(booking => 

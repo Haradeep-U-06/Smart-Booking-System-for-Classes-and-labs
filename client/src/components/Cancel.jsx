@@ -245,14 +245,14 @@ function Cancel() {
                             </button>
                           )}
                           
-                          {userBooking && (
+                          {/* {userBooking && (
                             <button 
                               onClick={() => handleUnBook(slot.facultyId, room.roomId, slot.startTime, slot.endTime)}
                               className="cancel-btn"
                             >
                               Cancel Booking
                             </button>
-                          )}
+                          )} */}
                         </div>
                       );
                     })

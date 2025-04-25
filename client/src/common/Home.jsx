@@ -13,7 +13,14 @@ function Home() {
   
   useEffect(() => {
     const fetchOrCreateTeacher = async () => {
-      if (!user || !isSignedIn) return;
+      if (!user || !isSignedIn){
+        // Clear stored data if not signed in
+        localStorage.removeItem('currentTeacher')
+        localStorage.removeItem('currentId')
+        setCurrentTeacher({ name: "", email: "" })
+        setCurrentId({ id: 0 })
+        return
+      };//if condition is new
   
       const updatedTeacher = {
         ...currentTeacher,
@@ -51,7 +58,9 @@ function Home() {
     };
   
     fetchOrCreateTeacher();
-  }, [isLoaded]);
+  }, [isLoaded,isSignedIn, user]);//new
+
+
 
   return (
     <div className="home-container">
