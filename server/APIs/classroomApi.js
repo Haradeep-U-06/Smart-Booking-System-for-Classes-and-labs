@@ -266,18 +266,76 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
 
     const bookings = await Booking.find({ classroomId: room._id, date });
 
+    // new function
+    // Add these helper functions above the endpoint
+function getBookingSection(booking, dayOfWeek, timetable) {
+    // Check if this time slot matches a regular class in the timetable
+    const daySchedule = timetable.find(d => d.day === dayOfWeek);
+    if (!daySchedule || !daySchedule.slots) return null;
+    
+    const matchingSlot = daySchedule.slots.find(slot => {
+      // Convert times to minutes for comparison
+      const toMinutes = t => {
+        const [hours, minutes] = t.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+      
+      const bookingStart = toMinutes(booking.startTime);
+      const bookingEnd = toMinutes(booking.endTime);
+      const slotStart = toMinutes(slot.startTime);
+      const slotEnd = toMinutes(slot.endTime);
+      
+      // Check if times overlap
+      return (bookingStart < slotEnd && bookingEnd > slotStart);
+    });
+    
+    return matchingSlot?.section || null;
+  }
+  
+  function getBookingSubject(booking, dayOfWeek, timetable) {
+    // Similar to section lookup, but returns subject
+    const daySchedule = timetable.find(d => d.day === dayOfWeek);
+    if (!daySchedule || !daySchedule.slots) return null;
+    
+    const matchingSlot = daySchedule.slots.find(slot => {
+      const toMinutes = t => {
+        const [hours, minutes] = t.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+      
+      const bookingStart = toMinutes(booking.startTime);
+      const bookingEnd = toMinutes(booking.endTime);
+      const slotStart = toMinutes(slot.startTime);
+      const slotEnd = toMinutes(slot.endTime);
+      
+      return (bookingStart < slotEnd && bookingEnd > slotStart);
+    });
+    
+    return matchingSlot?.subject || null;
+  }
+  
+    // new function end  
+
     const occupied = [
       ...scheduledSlots.map(s => ({
         startTime: s.startTime,
         endTime: s.endTime,
         facultyName: s.facultyName || null,
-        facultyId: s.facultyId || null
+        facultyId: s.facultyId || null,
+        // new
+        section: s.section || null,       // Add this
+        subject: s.subject || null,       // Add this
+        roomName: room.name  
       })),
       ...bookings.map(b => ({
         startTime: b.startTime,
         endTime: b.endTime,
         facultyName: b.facultyName || null,
-        facultyId: b.facultyId || null
+        facultyId: b.facultyId || null,
+        // For bookings, we need to look up section information
+        section: getBookingSection(b, dayOfWeek, room.timetable) || "N/A",
+        subject: getBookingSubject(b, dayOfWeek, room.timetable) || "N/A",
+        roomName: room.name
       }))
     ]
 
@@ -316,7 +374,10 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
         available: !isTaken || !!canceledSlot,
         type: canceledSlot ? "Canceled" : isTaken ? "Taken" : "Available",
         bookedBy: overlappingSlot?.facultyName || null,
-        bookedById: overlappingSlot?.facultyId || null
+        bookedById: overlappingSlot?.facultyId || null,
+        // new
+        section: overlappingSlot?.section || null,    // Add this
+        subject: overlappingSlot?.subject || null     // Add this
       };
     });
 

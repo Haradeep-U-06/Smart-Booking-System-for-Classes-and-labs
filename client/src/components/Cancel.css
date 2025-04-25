@@ -49,3 +49,26 @@
   margin-top: -0.5rem;
   margin-bottom: 1.5rem;
 }
+
+/* Added styles for booking details */
+.booking-details {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.time-slot .room-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 3px;
+  display: block;
+}
+
+.time-slot .section,
+.time-slot .subject,
+.time-slot .faculty {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  display: block;
+}

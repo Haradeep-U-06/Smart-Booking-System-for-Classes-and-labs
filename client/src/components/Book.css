@@ -202,3 +202,43 @@
   color: #666;
   font-style: italic;
 }
+.booking-details {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.time-slot .room-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 3px;
+  display: block;
+}
+
+.time-slot .section,
+.time-slot .subject,
+.time-slot .faculty {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  display: block;
+}
+
+/* Add to your Book.css */
+.refresh-btn {
+  margin-left: 1rem;
+  padding: 0.3rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.alert {
+  margin-bottom: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

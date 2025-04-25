@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useCallback} from 'react'
 import axios from 'axios'
 import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
@@ -12,6 +12,8 @@ function Book() {
     const [bookingsData, setBookingsData] = useState([]);
     const [dateOptions, setDateOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     // Generate 14 days for the date selector with explicit timezone handling
     useEffect(() => {
@@ -46,24 +48,39 @@ function Book() {
         }
     }, []);
 
-    async function fetchSlots() {
+    // Use useCallback for fetchSlots to prevent unnecessary re-creation
+    const fetchSlots = useCallback(async (silent = false) => {
         if (!date) return;
-        setIsLoading(true);
+        if (!silent) setIsLoading(true);
+        setError(null); // Clear any previous errors
+        
         try {
-            console.log("Fetching slots for date:", date); // Debug log
+            console.log("Fetching slots for date:", date);
             const result = await axios.get(`http://localhost:4000/classroom-api/available-slots/${date}`);
-            console.log("Received slots:", result.data.payload.length); // Debug log
+            console.log("Received slots:", result.data.payload.length); 
             setSlotsData(result.data.payload);
             
             const bookings = await axios.get('http://localhost:4000/booking-api/booking');
             setBookingsData(bookings.data.payload);
         } catch (err) {
             console.error("Error fetching slots:", err.message);
-            alert("Failed to fetch slots. Please try again later.");
+            setError("Failed to fetch available slots. Please try refreshing the page.");
+            // Don't clear existing data on error
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
-    }
+    }, [date]);
+
+     // Set up automatic refresh every 3 minutes
+     useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (date) {
+                fetchSlots(true); // silent refresh
+            }
+        }, 180000); // 3 minutes
+        
+        return () => clearInterval(intervalId);
+    }, [date, fetchSlots]);
 
     // Call fetchSlots whenever date changes
     useEffect(() => {
@@ -212,12 +229,56 @@ function Book() {
                                                     <span className="status">
                                                         {isUserBooked ? "Your Booking" : slot.type}
                                                     </span>
+
+                                                    {/* Room Name for all slots */}
+                                                    {/* <span className="room-name">
+                                                        Room: {room.roomName}
+                                                    </span> */}
                                                     
-                                                    {slot.bookedBy && (
+                                                    {/* {slot.bookedBy && (
                                                         <span className="faculty">
                                                             Booked by: {slot.bookedBy}
                                                         </span>
+                                                    )} */}
+
+                                                    {/* Add class/section information */}
+                                                    {/* {slot.type === "Taken" && slot.section && (
+                                                        <span className="section">
+                                                            Class: {slot.section}
+                                                        </span>
+                                                    )} */}
+                                                    
+                                                    {/* Add subject information if available */}
+                                                    {/* {slot.type === "Taken" && slot.subject && (
+                                                        <span className="subject">
+                                                            Subject: {slot.subject}
+                                                        </span>
+                                                    )} */}
+                                                    {/* Show who booked the slot with additional information */}
+                                                    {slot.type === "Taken" && (
+                                                        <div className="booking-details">
+                                                            {slot.bookedBy && (
+                                                                <span className="faculty">
+                                                                    Booked by: {slot.bookedBy}
+                                                                </span>
+                                                            )}
+
+                                                            {/* Add class/section information */}
+                                                            {slot.section && (
+                                                                <span className="section">
+                                                                    Class: {slot.section}
+                                                                </span>
+                                                            )}
+                                                            
+                                                            {/* Add subject information if available */}
+                                                            {slot.subject && (
+                                                                <span className="subject">
+                                                                    Subject: {slot.subject}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
+
                                                     
                                                     {slot.available && (
                                                         <button onClick={() => handleBook(room.roomId, slot.startTime, slot.endTime)}>
@@ -245,4 +306,3 @@ function Book() {
 }
 
 export default Book;
-

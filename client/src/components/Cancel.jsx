@@ -200,12 +200,40 @@ function Cancel() {
                           <span className="status">
                             {userBooking ? "Your Booking" : slot.type}
                           </span>
+
+                          {/* Room Name for all slots
+                          <span className="room-name">
+                            Room: {room.roomName}
+                          </span> */}
+                          {/* Show detailed information */}
+                          <div className="booking-details">
+                            {/* Faculty information */}
+                            {slot.facultyName && (
+                              <span className="faculty">
+                                Faculty: {slot.facultyName}
+                              </span>
+                            )}
+                             
+                            {/* Show section information */}
+                            {slot.section && (
+                              <span className="section">
+                                Class: {slot.section}
+                              </span>
+                            )}
+                            
+                            {/* Show subject information */}
+                            {slot.subject && (
+                              <span className="subject">
+                                Subject: {slot.subject}
+                              </span>
+                            )}
+                          </div>
                           
-                          {slot.facultyName && (
+                          {/* {slot.facultyName && (
                             <span className="faculty">
                               {slot.facultyName}
                             </span>
-                          )}
+                          )} */}
                           
                           {slot.type === "Scheduled" && 
                            Number(slot.facultyId) === Number(currentId) && (
@@ -217,14 +245,14 @@ function Cancel() {
                             </button>
                           )}
                           
-                          {/* {userBooking && (
+                          {userBooking && (
                             <button 
                               onClick={() => handleUnBook(slot.facultyId, room.roomId, slot.startTime, slot.endTime)}
                               className="cancel-btn"
                             >
                               Cancel Booking
                             </button>
-                          )} */}
+                          )}
                         </div>
                       );
                     })

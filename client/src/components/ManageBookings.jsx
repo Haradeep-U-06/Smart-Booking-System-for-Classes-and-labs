@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
 import axios from 'axios'
 import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
@@ -6,15 +6,17 @@ import './ManageBookings.css'
 
 function ManageBookings() {
   const { currentTeacher } = useContext(teacherContextObj)
-  const { currentId } = useContext(idContextObj)
+  const { currentId, setCurrentId } = useContext(idContextObj)
   const [date, setDate] = useState('')
   const [dateOptions, setDateOptions] = useState([])
   const [scheduledClasses, setScheduledClasses] = useState([])
   const [bookedClasses, setBookedClasses] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('scheduled')
+  const [lastRefresh, setLastRefresh] = useState(null)
   
-  // Generate 14 days for date selector
+  // Generate 14 days for date selector (unchanged)
   useEffect(() => {
     const dates = []
     const today = new Date()
@@ -42,21 +44,8 @@ function ManageBookings() {
     }
   }, [])
 
-  // Important: Add this to track when currentId becomes available
-  useEffect(() => {
-    if (currentId && date) {
-      fetchClassesData()
-    }
-  }, [currentId])
-
-  // Fetch scheduled classes and bookings whenever date changes
-  useEffect(() => {
-    if (date && currentId) {
-      fetchClassesData()
-    }
-  }, [date])
-
-  const fetchClassesData = async () => {
+  // Use useCallback to memoize the fetchClassesData function
+  const fetchClassesData = useCallback(async (silent = false) => {
     // Extract the actual ID value from currentId object if needed
     const teacherId = typeof currentId === 'object' ? currentId.id : currentId
     
@@ -65,11 +54,10 @@ function ManageBookings() {
       return
     }
     
-    setIsLoading(true)
+    if (!silent) setIsLoading(true)
+    setError(null) // Clear previous errors
+    
     try {
-      console.log("Fetching data for date:", date)
-      console.log("Teacher ID being used:", teacherId)
-      
       // Fetch schedule data for the selected date
       const scheduleResponse = await axios.get(`http://localhost:4000/classroom-api/schedule/${date}`)
       const scheduleData = scheduleResponse.data.payload || []
@@ -87,7 +75,6 @@ function ManageBookings() {
         }
         
         const userClasses = room.schedule.filter(slot => {
-          // Convert both IDs to strings and compare
           const slotFacultyId = String(slot.facultyId)
           const currentTeacherId = String(teacherId)
           
@@ -126,29 +113,66 @@ function ManageBookings() {
         }
       })
       
-      console.log("Found scheduled classes:", userScheduled.length)
-      console.log("Found booked classes:", bookedWithDetails.length)
-      
       setScheduledClasses(userScheduled)
       setBookedClasses(bookedWithDetails)
+      setLastRefresh(new Date())
     } catch (err) {
       console.error("Error fetching data:", err.message)
-      alert("Failed to fetch your classes data. Please try again later.")
+      setError("Failed to fetch your classes data. Please try refreshing the page.")
+      // Don't clear previous state on error - very important!
     } finally {
-      setIsLoading(false)
+      if (!silent) setIsLoading(false)
     }
-  }
+  }, [currentId, date])
 
-  // Rest of your component remains the same
+  // Fetch data when currentId or date changes
+  useEffect(() => {
+    if (currentId && date) {
+      fetchClassesData()
+    }
+  }, [currentId, date, fetchClassesData])
+
+  // Set up periodic refresh (every 2 minutes)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (currentId && date) {
+        fetchClassesData(true) // silent refresh
+      }
+    }, 120000) // 2 minutes
+    
+    return () => clearInterval(intervalId)
+  }, [currentId, date, fetchClassesData])
+
+  // Check for session validity and attempt recovery
+  useEffect(() => {
+    const checkSession = async () => {
+      // If we haven't had a successful refresh in 30 minutes, try to recover
+      if (lastRefresh && (new Date() - lastRefresh) > 30 * 60 * 1000) {
+        try {
+          // Check if session is still valid by making a small API request
+          await axios.get('http://localhost:4000/classroom-api/classroom')
+          // If successful, refresh our data
+          fetchClassesData()
+        } catch (err) {
+          // Session likely expired, prompt user
+          setError("Your session may have expired. Please refresh the page to continue.")
+        }
+      }
+    }
+    
+    checkSession()
+  }, [lastRefresh, fetchClassesData])
+
+  // The rest of your component mostly unchanged
   const handleDateSelect = (selectedDate) => {
     setDate(selectedDate)
   }
 
   const handleCancelClass = async (roomId, startTime, endTime) => {
-    // Extract the actual ID value from currentId object if needed
     const teacherId = typeof currentId === 'object' ? currentId.id : currentId
     
     try {
+      setError(null)
       await axios.put(`http://localhost:4000/classroom-api/cancel-class/${roomId}`, {
         facultyId: teacherId,
         date,
@@ -159,19 +183,24 @@ function ManageBookings() {
       fetchClassesData()
     } catch (err) {
       console.error("Error canceling class:", err.message)
-      alert("Failed to cancel class. Please try again.")
+      setError("Failed to cancel class. Please try again.")
     }
   }
 
   const handleUnBook = async (bookingId) => {
     try {
+      setError(null)
       await axios.delete(`http://localhost:4000/booking-api/unbook/${bookingId}`)
       alert('Booking successfully canceled')
       fetchClassesData()
     } catch (err) {
       console.error("Error canceling booking:", err.message)
-      alert("Failed to cancel booking. Please try again.")
+      setError("Failed to cancel booking. Please try again.")
     }
+  }
+
+  const handleManualRefresh = () => {
+    fetchClassesData()
   }
 
   return (
@@ -179,9 +208,33 @@ function ManageBookings() {
       <div className="booking-header">
         <h2>Manage Your Classes</h2>
         <p className="text-muted">View and manage your scheduled and booked classes</p>
+        
+        {/* Add refresh button */}
+        <button onClick={handleManualRefresh} className="btn btn-outline-primary btn-sm refresh-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+          </svg>
+          Refresh Data
+        </button>
+        
+        {/* Show last refresh time */}
+        {lastRefresh && (
+          <small className="text-muted d-block mt-1">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+          </small>
+        )}
       </div>
       
-      {/* Date selector bar */}
+      {/* Show error message if any */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+          <button type="button" className="btn-close float-end" onClick={() => setError(null)}></button>
+        </div>
+      )}
+      
+      {/* Date selector and rest of component remains the same */}
       <div className="date-selector-container">
         <div className="date-selector">
           {dateOptions.map(option => (
