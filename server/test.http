@@ -142,3 +142,41 @@ Content-Type: application/json
 
 ### Delete teacehr data
 DELETE http://localhost:4000/id-teacher-api/delete/67f5872327f76ed647967072
+
+### Submit a new leave application
+POST http://localhost:4000/leave-api/apply
+Content-Type: application/json
+
+{
+  "facultyId": 1,
+  "facultyName": "Test Faculty",
+  "facultyEmail": "test@faculty.com",
+  "fromDate": "2025-05-10",
+  "toDate": "2025-05-12",
+  "reason": "Personal reasons"
+}
+
+### Get all leave applications for a faculty
+GET http://localhost:4000/leave-api/faculty/1
+
+### Get all pending leave applications (admin)
+GET http://localhost:4000/leave-api/pending
+
+### Get all leave applications (admin)
+GET http://localhost:4000/leave-api/all
+
+### Approve a leave application (update the ID as needed)
+PUT http://localhost:4000/leave-api/[leave-id]/approve
+Content-Type: application/json
+
+{
+  "adminMessage": "Your leave request has been approved."
+}
+
+### Reject a leave application (update the ID as needed)
+PUT http://localhost:4000/leave-api/[leave-id]/reject
+Content-Type: application/json
+
+{
+  "adminMessage": "Your leave request cannot be approved at this time due to scheduling conflicts."
+}

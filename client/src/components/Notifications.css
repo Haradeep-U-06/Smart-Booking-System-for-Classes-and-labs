@@ -1,0 +1,171 @@
+.notifications-container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  min-height: 100%;
+}
+
+.notifications-header {
+  margin-bottom: 1.5rem;
+}
+
+.notifications-header h2 {
+  color: #0050b3;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tab-button {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: none;
+  color: #6c757d;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-button.active {
+  color: #0069d9;
+  border-bottom: 3px solid #0069d9;
+  background-color: #f0f7ff;
+}
+
+.leave-applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.leave-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.leave-card-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f9ff;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.leave-dates {
+  font-weight: 500;
+  color: #343a40;
+}
+
+.date-label {
+  color: #6c757d;
+  margin-right: 0.25rem;
+}
+
+.date-separator {
+  margin: 0 0.5rem;
+  color: #adb5bd;
+}
+
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-pending {
+  background-color: #fff8e6;
+  color: #f59f00;
+}
+
+.badge-approved {
+  background-color: #e7f6e7;
+  color: #28a745;
+}
+
+.badge-rejected {
+  background-color: #ffebee;
+  color: #dc3545;
+}
+
+.leave-card-body {
+  padding: 1.25rem;
+}
+
+.reason-section h4, .admin-response h4 {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reason-section p, .admin-response p {
+  margin-bottom: 1rem;
+  color: #343a40;
+  line-height: 1.6;
+}
+
+.admin-response {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.leave-card-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.empty-state h3 {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.empty-state p {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .tabs-header {
+    padding-bottom: 0.5rem;
+  }
+  
+  .leave-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .status-badge {
+    margin-top: 0.5rem;
+  }
+}

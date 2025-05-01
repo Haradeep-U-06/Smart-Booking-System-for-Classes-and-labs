@@ -433,4 +433,32 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
   res.status(200).json({ payload: result });
 }));
 
+// Add this route to delete a classroom by ID
+classroomApp.delete('/classrooms/:id', expressAsyncHandler(async(req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const classroom = await Classroom.findById(id);
+    
+    if (!classroom) {
+      return res.status(404).send({ error: "Classroom not found" });
+    }
+    
+    // Check if there are any active bookings for this classroom
+    const bookings = await Booking.find({ classroomId: id });
+    
+    if (bookings.length > 0) {
+      return res.status(400).send({ 
+        error: "Cannot delete classroom with active bookings. Please cancel all bookings first." 
+      });
+    }
+    
+    await Classroom.findByIdAndDelete(id);
+    
+    res.status(200).send({ message: "Classroom deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+}));
+
 module.exports = classroomApp

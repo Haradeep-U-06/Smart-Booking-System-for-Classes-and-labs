@@ -1,0 +1,109 @@
+.leave-application-container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  min-height: 100%;
+}
+
+.leave-header {
+  margin-bottom: 1.5rem;
+}
+
+.leave-header h2 {
+  color: #0050b3;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.leave-header .text-muted {
+  color: #6c757d;
+}
+
+.leave-form-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.date-picker-container {
+  position: relative;
+  display: flex;
+}
+
+.date-input {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.calendar-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: none;
+  border: none;
+  border-left: 1px solid #ddd;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0069d9;
+  cursor: pointer;
+}
+
+.calendar-button:hover {
+  background-color: #f8f9fa;
+}
+
+.reason-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  min-width: 200px;
+}
+
+/* Calendar Modal Styling */
+.calendar-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .leave-form-card {
+    padding: 1.5rem;
+  }
+  
+  .submit-btn {
+    width: 100%;
+  }
+}
