@@ -180,3 +180,49 @@
     border-left: 3px solid #0069d9;
   }
 }
+
+/* Add to both Cancel.css and ManageBookings.css if not already present */
+
+.date-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.date-selector-header h5 {
+  margin: 0;
+  font-weight: 500;
+  color: #555;
+}
+
+.calendar-toggle-btn {
+  background-color: #f0f7ff;
+  border: 1px solid #d0e3ff;
+  border-radius: 4px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  color: #0069d9;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-toggle-btn:hover {
+  background-color: #e0f0ff;
+}
+
+.calendar-toggle-btn svg {
+  margin-right: 3px;
+}
+
+.selected-date-display {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.75rem;
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}

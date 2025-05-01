@@ -4,6 +4,12 @@ const classroomSchema = new mongoose.Schema({
     name:{
         type : String 
     }, 
+    year: {
+        type : Number
+    }, 
+    block: {
+        type : String 
+    }, 
     capacity:{
         type : Number 
     }, 

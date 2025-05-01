@@ -228,13 +228,72 @@ classroomApp.get('/schedule/:date', expressAsyncHandler(async(req, res) => {
     }
 }));
 
+// Add these helper functions before the available-slots route
+
+// Helper function to find section for a booking
+function getBookingSection(booking, dayOfWeek, timetable) {
+  const daySchedule = timetable.find(d => d.day === dayOfWeek);
+  if (!daySchedule || !daySchedule.slots) return null;
+  
+  const matchingSlot = daySchedule.slots.find(slot => {
+    // Convert times to minutes for comparison
+    const toMinutes = t => {
+      const [hours, minutes] = t.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const bookingStart = toMinutes(booking.startTime);
+    const bookingEnd = toMinutes(booking.endTime);
+    const slotStart = toMinutes(slot.startTime);
+    const slotEnd = toMinutes(slot.endTime);
+    
+    // Check if times overlap
+    return (bookingStart < slotEnd && bookingEnd > slotStart);
+  });
+  
+  return matchingSlot?.section || null;
+}
+
+// Helper function to find subject for a booking
+function getBookingSubject(booking, dayOfWeek, timetable) {
+  const daySchedule = timetable.find(d => d.day === dayOfWeek);
+  if (!daySchedule || !daySchedule.slots) return null;
+  
+  const matchingSlot = daySchedule.slots.find(slot => {
+    const toMinutes = t => {
+      const [hours, minutes] = t.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const bookingStart = toMinutes(booking.startTime);
+    const bookingEnd = toMinutes(booking.endTime);
+    const slotStart = toMinutes(slot.startTime);
+    const slotEnd = toMinutes(slot.endTime);
+    
+    return (bookingStart < slotEnd && bookingEnd > slotStart);
+  });
+  
+  return matchingSlot?.subject || null;
+}
+
 // Get available slots for booking
 classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) => {
-    const { date } = req.params;
+  const { date } = req.params;
   const selectedDate = new Date(date);
   const dayOfWeek = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
 
-  const timeSlots = [
+  // First year time slots (9 AM to 12 PM and 12:40 PM to 3:40 PM)
+  const firstYearTimeSlots = [
+    { startTime: "09:00", endTime: "10:00" },
+    { startTime: "10:00", endTime: "11:00" },
+    { startTime: "11:00", endTime: "12:00" },
+    { startTime: "12:40", endTime: "13:40" },
+    { startTime: "13:40", endTime: "14:40" },
+    { startTime: "14:40", endTime: "15:40" }
+  ];
+
+  // Higher years time slots (10 AM to 1 PM and 1:40 PM to 4:40 PM)
+  const higherYearTimeSlots = [
     { startTime: "10:00", endTime: "11:00" },
     { startTime: "11:00", endTime: "12:00" },
     { startTime: "12:00", endTime: "13:00" },
@@ -243,78 +302,53 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
     { startTime: "15:40", endTime: "16:40" }
   ];
 
-  const labTimeSlots = [
-    { startTime: "10:00", endTime: "13:00" },
-    { startTime: "13:40", endTime: "16:40" }
+  // First year lab time slots (3-hour blocks)
+  const firstYearLabTimeSlots = [
+    { startTime: "09:00", endTime: "10:00" },
+    { startTime: "10:00", endTime: "11:00" },
+    { startTime: "11:00", endTime: "12:00" },
+    { startTime: "12:40", endTime: "13:40" },
+    { startTime: "13:40", endTime: "14:40" },
+    { startTime: "14:40", endTime: "15:40" }
+  ];
+
+  // Higher years lab time slots (3-hour blocks)
+  const higherYearLabTimeSlots = [
+    { startTime: "10:00", endTime: "11:00" },
+    { startTime: "11:00", endTime: "12:00" },
+    { startTime: "12:00", endTime: "13:00" },
+    { startTime: "13:40", endTime: "14:40" },
+    { startTime: "14:40", endTime: "15:40" },
+    { startTime: "15:40", endTime: "16:40" }
   ];
 
   const classrooms = await Classroom.find();
-
   const result = [];
 
   for (const room of classrooms) {
     let scheduledSlots = [];
     const daySchedule = room.timetable.find(d => d.day === dayOfWeek);
+    
     if (daySchedule && daySchedule.slots) {
-        daySchedule.slots.forEach(slot => {
-            const isCancelled = room.canceledSlots?.some(cs => cs.date === date && cs.startTime === slot.startTime && cs.endTime === slot.endTime);
-            if (!isCancelled) {
-                scheduledSlots.push(slot)
-            }
-        });
+      daySchedule.slots.forEach(slot => {
+        const isCancelled = room.canceledSlots?.some(cs => 
+          cs.date === date && 
+          cs.startTime === slot.startTime && 
+          cs.endTime === slot.endTime
+        );
+        if (!isCancelled) {
+          scheduledSlots.push(slot);
+        }
+      });
     }
 
     const bookings = await Booking.find({ classroomId: room._id, date });
 
-    // new function
-    // Add these helper functions above the endpoint
-function getBookingSection(booking, dayOfWeek, timetable) {
-    // Check if this time slot matches a regular class in the timetable
-    const daySchedule = timetable.find(d => d.day === dayOfWeek);
-    if (!daySchedule || !daySchedule.slots) return null;
-    
-    const matchingSlot = daySchedule.slots.find(slot => {
-      // Convert times to minutes for comparison
-      const toMinutes = t => {
-        const [hours, minutes] = t.split(':').map(Number);
-        return hours * 60 + minutes;
-      };
-      
-      const bookingStart = toMinutes(booking.startTime);
-      const bookingEnd = toMinutes(booking.endTime);
-      const slotStart = toMinutes(slot.startTime);
-      const slotEnd = toMinutes(slot.endTime);
-      
-      // Check if times overlap
-      return (bookingStart < slotEnd && bookingEnd > slotStart);
-    });
-    
-    return matchingSlot?.section || null;
-  }
-  
-  function getBookingSubject(booking, dayOfWeek, timetable) {
-    // Similar to section lookup, but returns subject
-    const daySchedule = timetable.find(d => d.day === dayOfWeek);
-    if (!daySchedule || !daySchedule.slots) return null;
-    
-    const matchingSlot = daySchedule.slots.find(slot => {
-      const toMinutes = t => {
-        const [hours, minutes] = t.split(':').map(Number);
-        return hours * 60 + minutes;
-      };
-      
-      const bookingStart = toMinutes(booking.startTime);
-      const bookingEnd = toMinutes(booking.endTime);
-      const slotStart = toMinutes(slot.startTime);
-      const slotEnd = toMinutes(slot.endTime);
-      
-      return (bookingStart < slotEnd && bookingEnd > slotStart);
-    });
-    
-    return matchingSlot?.subject || null;
-  }
-  
-    // new function end  
+    // Check if this is a first-year classroom based on room name, metadata, or year field
+    const isFirstYearRoom = room.name.toLowerCase().includes('first') || 
+                           room.name.includes('1st') || 
+                           room.name.includes('I year') ||
+                           room.year === 1;
 
     const occupied = [
       ...scheduledSlots.map(s => ({
@@ -322,26 +356,32 @@ function getBookingSection(booking, dayOfWeek, timetable) {
         endTime: s.endTime,
         facultyName: s.facultyName || null,
         facultyId: s.facultyId || null,
-        // new
-        section: s.section || null,       // Add this
-        subject: s.subject || null,       // Add this
-        roomName: room.name  
+        section: s.section || null,
+        subject: s.subject || null,
+        roomName: room.name
       })),
       ...bookings.map(b => ({
         startTime: b.startTime,
         endTime: b.endTime,
         facultyName: b.facultyName || null,
         facultyId: b.facultyId || null,
-        // For bookings, we need to look up section information
         section: getBookingSection(b, dayOfWeek, room.timetable) || "N/A",
         subject: getBookingSubject(b, dayOfWeek, room.timetable) || "N/A",
         roomName: room.name
       }))
-    ]
+    ];
 
     const canceled = room.canceledSlots.filter(cs => cs.date === date);
 
-    const slots = (room.type === "Lab" ? labTimeSlots : timeSlots).map(slot => {
+    // Determine appropriate time slots based on year and room type
+    let applicableTimeSlots;
+    if (room.type === "Lab") {
+      applicableTimeSlots = isFirstYearRoom ? firstYearLabTimeSlots : higherYearLabTimeSlots;
+    } else {
+      applicableTimeSlots = isFirstYearRoom ? firstYearTimeSlots : higherYearTimeSlots;
+    }
+
+    const slots = applicableTimeSlots.map(slot => {
       const book = bookings.find(
         c => c.startTime === slot.startTime && c.endTime === slot.endTime
       );
@@ -375,9 +415,8 @@ function getBookingSection(booking, dayOfWeek, timetable) {
         type: canceledSlot ? "Canceled" : isTaken ? "Taken" : "Available",
         bookedBy: overlappingSlot?.facultyName || null,
         bookedById: overlappingSlot?.facultyId || null,
-        // new
-        section: overlappingSlot?.section || null,    // Add this
-        subject: overlappingSlot?.subject || null     // Add this
+        section: overlappingSlot?.section || null,
+        subject: overlappingSlot?.subject || null
       };
     });
 
@@ -386,6 +425,7 @@ function getBookingSection(booking, dayOfWeek, timetable) {
       roomName: room.name,
       capacity: room.capacity,
       type: room.type,
+      year: isFirstYearRoom ? 1 : 'higher',
       slots
     });
   }

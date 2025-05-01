@@ -4,6 +4,7 @@ import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
 import { useNavigate } from 'react-router-dom' //new
 import { useUser } from '@clerk/clerk-react' //new
+import Calendar from './Calendar' // Import Calendar component
 import './ManageBookings.css'
 
 function ManageBookings() {
@@ -19,6 +20,7 @@ function ManageBookings() {
   const [lastRefresh, setLastRefresh] = useState(null)
   const { isSignedIn, user, isLoaded } = useUser() // Add this to check auth state
   const navigate = useNavigate() // For redirecting if needed
+  const [showCalendar, setShowCalendar] = useState(false) // New state for calendar visibility
   
   // Generate 14 days for date selector (unchanged)
   useEffect(() => {
@@ -245,6 +247,17 @@ function ManageBookings() {
     fetchClassesData()
   }
 
+  // Handle date selection from calendar
+  const handleCalendarDateSelect = (selectedDate) => {
+    setDate(selectedDate);
+    setShowCalendar(false);
+  };
+
+  // Toggle calendar visibility
+  const toggleCalendar = () => {
+    setShowCalendar(!showCalendar);
+  };
+
   return (
     <div className="manage-bookings-container">
       <div className="booking-header">
@@ -276,8 +289,18 @@ function ManageBookings() {
         </div>
       )}
       
-      {/* Date selector and rest of component remains the same */}
+      {/* Date selector with calendar button */}
       <div className="date-selector-container">
+        <div className="date-selector-header">
+          <h5>Select Date</h5>
+          <button className="calendar-toggle-btn" onClick={toggleCalendar}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+            </svg>
+            Calendar
+          </button>
+        </div>
+        
         <div className="date-selector">
           {dateOptions.map(option => (
             <div 
@@ -291,7 +314,21 @@ function ManageBookings() {
             </div>
           ))}
         </div>
+        
+        {/* Selected date display */}
+        <div className="selected-date-display">
+          Selected: {new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </div>
       </div>
+      
+      {/* Calendar modal */}
+      {showCalendar && (
+        <Calendar 
+          onSelectDate={handleCalendarDateSelect} 
+          onClose={() => setShowCalendar(false)} 
+          currentSelectedDate={date}
+        />
+      )}
       
       {/* Tab navigation */}
       <div className="tabs-container">
