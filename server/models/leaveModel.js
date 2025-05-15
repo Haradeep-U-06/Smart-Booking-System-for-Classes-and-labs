@@ -21,6 +21,12 @@ const leaveApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    leaveType: {
+        type: String,
+        enum: ['EL', 'CL', 'SL', 'LOP'],
+        default: 'CL',
+        required: true
+    },
     reason: {
         type: String,
         required: true

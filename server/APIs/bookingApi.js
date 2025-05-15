@@ -3,6 +3,7 @@ const bookingApp = exp.Router()
 const Booking = require('../models/bookingModel')
 const expressAsyncHandler = require('express-async-handler');
 const Classroom = require('../models/classroomModel');
+const LeaveApplication = require('../models/leaveModel');
 
 // Get all bookings
 bookingApp.get('/booking', expressAsyncHandler(async(req, res) => {
@@ -83,5 +84,69 @@ bookingApp.delete('/unbook/:bookingId', expressAsyncHandler(async(req, res) => {
         res.status(500).send({error:error.message});
     }
 }));
+
+// Get available slots
+const getAvailableSlots = expressAsyncHandler(async (req, res) => {
+    try {
+        const { date, buildingId, roomId } = req.query;
+        
+        // Get faculty on leave for this date
+        const leavesResponse = await axios.get('http://localhost:4000/leave-api/on-leave', {
+            params: { date }
+        });
+        
+        const facultyOnLeave = leavesResponse.data.payload;
+        const facultyOnLeaveIds = facultyOnLeave.map(f => f.facultyId);
+        
+        // Get existing bookings
+        const bookings = await Booking.find({
+            date,
+            buildingId,
+            roomId
+        }).populate('facultyId'); // Ensure you populate faculty info
+        
+        // Process slots
+        const slots = getAllTimeSlots(); // Your function to generate all time slots
+        
+        const processedSlots = slots.map(slot => {
+            const existingBooking = bookings.find(b => 
+                b.startTime === slot.startTime && b.endTime === slot.endTime
+            );
+            
+            if (!existingBooking) {
+                return { ...slot, available: true };
+            }
+            
+            // If faculty is on leave, mark as available but with information
+            if (facultyOnLeaveIds.includes(existingBooking.facultyId)) {
+                return { 
+                    ...slot, 
+                    available: true,
+                    availableDueToLeave: true,
+                    originalFaculty: {
+                        id: existingBooking.facultyId,
+                        name: existingBooking.facultyName
+                    },
+                    leaveInfo: facultyOnLeave.find(f => f.facultyId === existingBooking.facultyId)
+                };
+            }
+            
+            // Otherwise it's booked and not available
+            return { 
+                ...slot, 
+                available: false,
+                bookedBy: existingBooking.facultyName
+            };
+        });
+        
+        res.status(200).send({
+            message: "Available slots retrieved",
+            payload: processedSlots,
+            facultyOnLeave
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
 
 module.exports = bookingApp;

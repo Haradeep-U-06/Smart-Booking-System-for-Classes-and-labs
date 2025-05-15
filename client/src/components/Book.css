@@ -424,3 +424,85 @@
     justify-content: center;
   }
 }
+
+/* Add these new styles to your existing Book.css */
+
+/* Faculty leave information section */
+.faculty-leave-info {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.faculty-leave-header h5 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: #495057;
+}
+
+.faculty-leave-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.faculty-leave-item {
+  background-color: white;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.faculty-name {
+  font-weight: 500;
+}
+
+.leave-type-badge {
+  background-color: #e7f6e7;
+  color: #28a745;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Styles for slots available due to faculty leave */
+.time-slot-leave-available {
+  background-color: rgba(13, 202, 240, 0.1) !important;
+  border-left: 4px solid #0dcaf0 !important;
+}
+
+.leave-info {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin: 0.25rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.original-faculty {
+  font-style: italic;
+}
+
+.leave-reason {
+  margin-top: 0.1rem;
+  font-weight: 500;
+  color: #0dcaf0;
+}
+
+/* Make the booking buttons for leave slots distinct */
+.time-slot-leave-available button {
+  background-color: #0dcaf0 !important;
+  border-color: #0dcaf0 !important;
+}
+
+.time-slot-leave-available button:hover {
+  background-color: #0babcc !important;
+  border-color: #0babcc !important;
+}

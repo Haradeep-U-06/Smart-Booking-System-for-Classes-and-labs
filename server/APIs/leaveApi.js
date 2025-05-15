@@ -6,13 +6,57 @@ const expressAsyncHandler = require('express-async-handler');
 // Submit a new leave application
 leaveApp.post('/apply', expressAsyncHandler(async(req, res) => {
     try {
-        const { facultyId, facultyName, facultyEmail, fromDate, toDate, reason } = req.body;
+        const { facultyId, facultyName, facultyEmail, fromDate, toDate, reason, leaveType } = req.body;
         
         // Validate input
-        if (!facultyId || !facultyName || !facultyEmail || !fromDate || !toDate || !reason) {
+        if (!facultyId || !facultyName || !facultyEmail || !fromDate || !toDate || !reason || !leaveType) {
             return res.status(400).send({
                 error: "Missing required fields. Please provide all required information."
             });
+        }
+        
+        // Check if faculty has already applied for leave on these dates
+        const existingFacultyLeave = await LeaveApplication.findOne({
+            facultyId: facultyId,
+            $or: [
+                // Check if any existing leave overlaps with requested dates
+                {
+                    fromDate: { $lte: toDate },
+                    toDate: { $gte: fromDate }
+                }
+            ]
+        });
+
+        if (existingFacultyLeave) {
+            return res.status(400).send({
+                error: "You already have a leave application that overlaps with the requested dates."
+            });
+        }
+        
+        // Check if maximum leaves limit is reached for any day in the date range
+        const fromDateObj = new Date(fromDate);
+        const toDateObj = new Date(toDate);
+        
+        // Loop through each day in the range
+        for (let day = new Date(fromDateObj); day <= toDateObj; day.setDate(day.getDate() + 1)) {
+            const currentDate = day.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+            
+            // Count how many leaves are already applied for this date
+            const existingLeaves = await LeaveApplication.countDocuments({
+                $or: [
+                    // Date range overlaps with current date
+                    {
+                        fromDate: { $lte: currentDate },
+                        toDate: { $gte: currentDate }
+                    }
+                ]
+            });
+            
+            if (existingLeaves >= 8) {
+                return res.status(400).send({
+                    error: `Maximum leave limit reached for ${new Date(currentDate).toLocaleDateString()}. No more leave applications can be accepted for this date.`
+                });
+            }
         }
         
         const newLeave = new LeaveApplication({
@@ -22,6 +66,7 @@ leaveApp.post('/apply', expressAsyncHandler(async(req, res) => {
             fromDate,
             toDate,
             reason,
+            leaveType, // Add the leave type
             status: 'pending',
             adminMessage: '',
             createdAt: new Date(),
@@ -145,6 +190,38 @@ leaveApp.put('/:id/reject', expressAsyncHandler(async(req, res) => {
         });
     } catch (error) {
         res.status(500).send({error: error.message});
+    }
+}));
+
+// Get faculty on leave for a specific date
+leaveApp.get('/on-leave', expressAsyncHandler(async(req, res) => {
+    try {
+        const { date } = req.query;
+        
+        if (!date) {
+            return res.status(400).send({ error: "Date parameter is required" });
+        }
+        
+        // Find all approved leaves that include this date
+        const leavesOnDate = await LeaveApplication.find({
+            fromDate: { $lte: date },
+            toDate: { $gte: date },
+            status: 'approved'
+        });
+        
+        // Extract faculty information
+        const facultyOnLeave = leavesOnDate.map(leave => ({
+            facultyId: leave.facultyId,
+            facultyName: leave.facultyName,
+            leaveType: leave.leaveType
+        }));
+        
+        res.status(200).send({
+            message: "Retrieved faculty on leave",
+            payload: facultyOnLeave
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 }));
 

@@ -175,6 +175,10 @@ function LeaveRequests() {
                     <span className="date-label">To:</span>
                     <span className="date-value">{formatDate(request.toDate)}</span>
                   </div>
+                  <div className="date-item">
+                    <span className="date-label">Type:</span>
+                    <span className="date-value">{request.leaveType || 'CL'}</span>
+                  </div>
                 </div>
                 
                 <div className="leave-reason">

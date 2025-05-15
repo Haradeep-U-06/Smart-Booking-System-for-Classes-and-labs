@@ -1,7 +1,9 @@
 const exp = require('express')
 const classroomApp = exp.Router()
 const Classroom = require('../models/classroomModel')
+// const Schedule = require('../models/scheduleModel')
 const Booking = require('../models/bookingModel')
+// const axios = require('axios')
 const expressAsyncHandler = require('express-async-handler')
 
 // Get all classrooms with their schedules
@@ -432,6 +434,152 @@ classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) 
 
   res.status(200).json({ payload: result });
 }));
+
+// Get available slots for a specific date
+classroomApp.get('/available-slots/:date', expressAsyncHandler(async (req, res) => {
+    try {
+        const { date } = req.params;
+        
+        // Get faculty on leave for this date
+        let facultyOnLeave = [];
+        try {
+            const leaveResponse = await axios.get('http://localhost:4000/leave-api/on-leave', {
+                params: { date }
+            });
+            facultyOnLeave = leaveResponse.data.payload || [];
+        } catch (leaveErr) {
+            console.error("Error fetching faculty on leave:", leaveErr);
+            // Continue even if this fails
+        }
+        
+        const facultyIdsOnLeave = facultyOnLeave.map(f => f.facultyId);
+        
+        // Get all classrooms
+        const classrooms = await Classroom.find();
+        
+        // Get scheduled classes for this date
+        const schedule = await Schedule.find({ date });
+        
+        // Get existing bookings for this date
+        const bookings = await Booking.find({ date });
+        
+        // Process each classroom to get available slots
+        const results = await Promise.all(classrooms.map(async (classroom) => {
+            // Get the scheduled classes for this classroom
+            const classSchedule = schedule.filter(s => s.classroomId === classroom._id.toString());
+            
+            // Get the bookings for this classroom
+            const classBookings = bookings.filter(b => b.classroomId === classroom._id.toString());
+            
+            // Combine all time slots
+            const allSlots = generateTimeSlots();
+            
+            // Mark slots as taken or available
+            const processedSlots = allSlots.map(slot => {
+                // Check if slot is in schedule
+                const scheduleItem = classSchedule.find(s => 
+                    s.startTime === slot.startTime && s.endTime === slot.endTime
+                );
+                
+                if (scheduleItem) {
+                    // Check if faculty is on leave
+                    if (facultyIdsOnLeave.includes(scheduleItem.facultyId)) {
+                        return {
+                            ...slot,
+                            type: "Available",
+                            available: true,
+                            availableDueToLeave: true,
+                            originalFaculty: scheduleItem.facultyName,
+                            leaveReason: `Faculty on ${facultyOnLeave.find(f => f.facultyId === scheduleItem.facultyId)?.leaveType || 'Leave'}`
+                        };
+                    }
+                    
+                    // Regular scheduled class
+                    return {
+                        ...slot,
+                        type: "Taken",
+                        available: false,
+                        bookedBy: scheduleItem.facultyName,
+                        bookedById: scheduleItem.facultyId,
+                        section: scheduleItem.section || "",
+                        subject: scheduleItem.subject || ""
+                    };
+                }
+                
+                // Check if slot is booked
+                const bookingItem = classBookings.find(b => 
+                    b.startTime === slot.startTime && b.endTime === slot.endTime
+                );
+                
+                if (bookingItem) {
+                    // Check if faculty is on leave
+                    if (facultyIdsOnLeave.includes(bookingItem.facultyId)) {
+                        return {
+                            ...slot,
+                            type: "Available",
+                            available: true,
+                            availableDueToLeave: true,
+                            originalFaculty: bookingItem.facultyName,
+                            leaveReason: `Faculty on ${facultyOnLeave.find(f => f.facultyId === bookingItem.facultyId)?.leaveType || 'Leave'}`
+                        };
+                    }
+                    
+                    // Regular booking
+                    return {
+                        ...slot,
+                        type: "Taken",
+                        available: false,
+                        bookedBy: bookingItem.facultyName,
+                        bookedById: bookingItem.facultyId,
+                        section: bookingItem.section || "",
+                        subject: bookingItem.subject || ""
+                    };
+                }
+                
+                // If neither scheduled nor booked, it's available
+                return {
+                    ...slot,
+                    type: "Available",
+                    available: true
+                };
+            });
+            
+            return {
+                roomId: classroom._id,
+                roomName: classroom.name,
+                capacity: classroom.capacity,
+                type: classroom.type,
+                block: classroom.block,
+                year: classroom.year,
+                slots: processedSlots
+            };
+        }));
+        
+        res.status(200).send({
+            message: "Available slots retrieved",
+            payload: results,
+            facultyOnLeave
+        });
+    } catch (error) {
+        console.error("Error in available-slots:", error);
+        res.status(500).send({ error: error.message });
+    }
+}));
+
+// Helper function to generate time slots
+function generateTimeSlots() {
+    // Define your institution's time slots
+    return [
+        { startTime: "09:00", endTime: "10:00" },
+        { startTime: "10:00", endTime: "11:00" },
+        { startTime: "11:00", endTime: "12:00" },
+        { startTime: "12:00", endTime: "13:00" },
+        { startTime: "12:40", endTime: "13:40" },
+        { startTime: "13:40", endTime: "14:40" },
+        { startTime: "14:40", endTime: "15:40" },
+        { startTime: "15:40", endTime: "16:40" }
+    ];
+}
 
 // Add this route to delete a classroom by ID
 classroomApp.delete('/classrooms/:id', expressAsyncHandler(async(req, res) => {

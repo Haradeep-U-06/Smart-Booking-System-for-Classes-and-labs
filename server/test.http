@@ -135,9 +135,9 @@ POST http://localhost:4000/id-teacher-api/teachersId
 Content-Type: application/json
 
 {
-    "id":1,
-    "name":"Karthik",
-    "email":"karthikgajavelly0017@gmail.com"
+    "id":16,
+    "name":"karthikg",
+    "email":"karthikgajavelly224@gmail.com"
 }
 
 ### Delete teacehr data

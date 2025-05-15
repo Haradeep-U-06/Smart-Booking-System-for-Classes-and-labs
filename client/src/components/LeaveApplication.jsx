@@ -14,6 +14,7 @@ function LeaveApplication() {
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [reason, setReason] = useState('')
+  const [leaveType, setLeaveType] = useState('CL') // Default to Casual Leave
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
@@ -61,7 +62,8 @@ function LeaveApplication() {
         facultyEmail: currentTeacher.email,
         fromDate,
         toDate,
-        reason
+        reason,
+        leaveType // Add the leave type to the request
       }
       
       const response = await axios.post('http://localhost:4000/leave-api/apply', leaveData)
@@ -71,9 +73,11 @@ function LeaveApplication() {
       setFromDate('')
       setToDate('')
       setReason('')
+      setLeaveType('CL') // Reset to default leave type
     } catch (err) {
       console.error('Failed to submit leave application:', err)
-      setError('Failed to submit leave application. Please try again later.')
+      // Display the error message from the backend if available
+      setError(err.response?.data?.error || 'Failed to submit leave application. Please try again later.')
     } finally {
       setIsSubmitting(false)
     }
@@ -112,6 +116,18 @@ function LeaveApplication() {
 
       <div className="leave-form-card">
         <form onSubmit={handleSubmit}>
+          {/* Faculty Name Field (Disabled) */}
+          <div className="form-group mb-4">
+            <label htmlFor="facultyName">Faculty Name</label>
+            <input
+              type="text"
+              id="facultyName"
+              className="form-control"
+              value={currentTeacher?.name || ''}
+              disabled
+            />
+          </div>
+
           <div className="form-group mb-4">
             <label htmlFor="fromDate">From Date</label>
             <div className="date-picker-container">
@@ -182,6 +198,23 @@ function LeaveApplication() {
                 currentSelectedDate={toDate}
               />
             )}
+          </div>
+
+          {/* Leave Type Dropdown */}
+          <div className="form-group mb-4">
+            <label htmlFor="leaveType">Leave Type</label>
+            <select
+              id="leaveType"
+              className="form-control"
+              value={leaveType}
+              onChange={(e) => setLeaveType(e.target.value)}
+              required
+            >
+              <option value="CL">Casual Leave (CL)</option>
+              <option value="EL">Earned Leave (EL)</option>
+              <option value="SL">Sick Leave (SL)</option>
+              <option value="LOP">Leave Without Pay (LWP)</option>
+            </select>
           </div>
 
           <div className="form-group mb-4">

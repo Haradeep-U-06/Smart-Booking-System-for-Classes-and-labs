@@ -16,8 +16,9 @@ function Book() {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [showCalendar, setShowCalendar] = useState(false);
+    const [facultyOnLeave, setFacultyOnLeave] = useState([]);
     
-    // New filter states
+    // Existing filter states
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedBlock, setSelectedBlock] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
@@ -26,7 +27,6 @@ function Book() {
     const [showFilters, setShowFilters] = useState(false);
     
     // Available filter options
-    // Update the blockOptions array on line 26
     const blockOptions = ['A', 'B', 'C', 'D', 'E', 'PEB', 'PG'];
     const yearOptions = [
         { value: 1, label: 'First Year' },
@@ -92,6 +92,11 @@ function Book() {
             console.log("Received slots:", result.data.payload.length); 
             setSlotsData(result.data.payload);
             
+            // Store faculty on leave data if available
+            if (result.data.facultyOnLeave) {
+                setFacultyOnLeave(result.data.facultyOnLeave);
+            }
+            
             const bookings = await axios.get('http://localhost:4000/booking-api/booking');
             setBookingsData(bookings.data.payload);
         } catch (err) {
@@ -149,15 +154,15 @@ function Book() {
                 startTime,
                 endTime
             });
-            alert('Slot booked successfully!');
+            setSuccessMessage('Slot booked successfully!');
             fetchSlots(); // Refresh data after booking
         } catch (err) {
             console.log("Booking error:", err.message);
-            alert("Booking failed. Please check your access or try again later.");
+            setError("Booking failed. Please check your access or try again later.");
         }
     }
 
-    // Rest of your component remains the same...
+    // Check if a slot is booked by the current user
     function isBooked(type, facultyId, roomId, startTime, endTime) {
         if (Number(facultyId) === Number(currentId) && type === "Taken") {
             return bookingsData.some(b => 
@@ -183,11 +188,12 @@ function Book() {
             
             if (b.length > 0) {
                 await axios.delete(`http://localhost:4000/booking-api/unbook/${b[0]._id}`);
+                setSuccessMessage('Booking cancelled successfully!');
                 fetchSlots(); // Refresh data after unbooking
             }
         } catch(err) {
             console.log("Unbooking error:", err.message);
-            alert("Failed to cancel booking. Please try again.");
+            setError("Failed to cancel booking. Please try again.");
         }
     }
 
@@ -392,6 +398,23 @@ function Book() {
                 )}
             </div>
             
+            {/* Faculty on leave info */}
+            {facultyOnLeave.length > 0 && (
+                <div className="faculty-leave-info">
+                    <div className="faculty-leave-header">
+                        <h5>Faculty on Leave Today</h5>
+                    </div>
+                    <div className="faculty-leave-list">
+                        {facultyOnLeave.map((faculty, index) => (
+                            <div key={index} className="faculty-leave-item">
+                                <span className="faculty-name">{faculty.facultyName}</span>
+                                <span className="leave-type-badge">{faculty.leaveType || 'Leave'}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
             {/* Show error message if any */}
             {error && (
                 <div className="alert alert-danger" role="alert">
@@ -466,6 +489,11 @@ function Book() {
                                                 slotTypeClass = "time-slot-canceled";
                                             }
                                             
+                                            // Add special class for slots available due to leave
+                                            if (slot.availableDueToLeave) {
+                                                slotTypeClass = "time-slot-leave-available";
+                                            }
+                                            
                                             return (
                                                 <div 
                                                     key={i} 
@@ -474,12 +502,29 @@ function Book() {
                                                     <span className="time">
                                                         {slot.startTime} - {slot.endTime}
                                                     </span>
+                                                    
                                                     <span className="status">
-                                                        {isUserBooked ? "Your Booking" : slot.type}
+                                                        {isUserBooked ? "Your Booking" : 
+                                                         slot.availableDueToLeave ? "Available (Faculty on Leave)" : 
+                                                         slot.type}
                                                     </span>
 
+                                                    {/* Show leave information */}
+                                                    {slot.availableDueToLeave && (
+                                                        <div className="leave-info">
+                                                            <span className="original-faculty">
+                                                                Originally booked by: {slot.originalFaculty}
+                                                            </span>
+                                                            {slot.leaveReason && (
+                                                                <span className="leave-reason">
+                                                                    {slot.leaveReason}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
                                                     {/* Show who booked the slot with additional information */}
-                                                    {slot.type === "Taken" && (
+                                                    {slot.type === "Taken" && !slot.availableDueToLeave && (
                                                         <div className="booking-details">
                                                             {slot.bookedBy && (
                                                                 <span className="faculty">
@@ -503,9 +548,20 @@ function Book() {
                                                         </div>
                                                     )}
 
-                                                    {slot.available && (
+                                                    {/* Show book button for available slots (including those due to leave) */}
+                                                    {(slot.available || slot.availableDueToLeave) && (
                                                         <button onClick={() => handleBook(room.roomId, slot.startTime, slot.endTime)}>
                                                             Book Now
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {/* Show unbook button for user's bookings */}
+                                                    {isUserBooked && (
+                                                        <button 
+                                                            className="btn-cancel-booking"
+                                                            onClick={() => handleUnBook(currentId, room.roomId, slot.startTime, slot.endTime)}
+                                                        >
+                                                            Cancel Booking
                                                         </button>
                                                     )}
                                                 </div>
