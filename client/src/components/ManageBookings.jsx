@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom' //new
 import { useUser } from '@clerk/clerk-react' //new
 import Calendar from './Calendar' // Import Calendar component
 import './ManageBookings.css'
+const API_URL = import.meta.env.VITE_API_URL;
 
 function ManageBookings() {
   const { currentTeacher } = useContext(teacherContextObj)
@@ -68,7 +69,7 @@ function ManageBookings() {
               const email = user.emailAddresses[0]?.emailAddress
               if (!email) throw new Error("No email available")
               
-              const res = await axios.get(`http://localhost:4000/id-teacher-api/teacherId/${email}`)
+              const res = await axios.get(`${API_URL}/id-teacher-api/teacherId/${email}`)
               
               if (res.data.message === "Teacher Found By Email") {
                 // Recover the ID in context
@@ -103,11 +104,11 @@ function ManageBookings() {
     
     try {
       // Fetch schedule data for the selected date
-      const scheduleResponse = await axios.get(`http://localhost:4000/classroom-api/schedule/${date}`)
+      const scheduleResponse = await axios.get(`${API_URL}/classroom-api/schedule/${date}`)
       const scheduleData = scheduleResponse.data.payload || []
       
       // Fetch booking data
-      const bookingsResponse = await axios.get('http://localhost:4000/booking-api/booking')
+      const bookingsResponse = await axios.get('${API_URL}/booking-api/booking')
       const bookingsData = bookingsResponse.data.payload || []
       
       // Filter scheduled classes for the current user
@@ -194,7 +195,7 @@ function ManageBookings() {
       if (lastRefresh && (new Date() - lastRefresh) > 30 * 60 * 1000) {
         try {
           // Check if session is still valid by making a small API request
-          await axios.get('http://localhost:4000/classroom-api/classroom')
+          await axios.get(`${API_URL}/classroom-api/classroom`)
           // If successful, refresh our data
           fetchClassesData()
         } catch (err) {
@@ -217,7 +218,7 @@ function ManageBookings() {
     
     try {
       setError(null)
-      await axios.put(`http://localhost:4000/classroom-api/cancel-class/${roomId}`, {
+      await axios.put(`${API_URL}/classroom-api/cancel-class/${roomId}`, {
         facultyId: teacherId,
         date,
         startTime,
@@ -234,7 +235,7 @@ function ManageBookings() {
   const handleUnBook = async (bookingId) => {
     try {
       setError(null)
-      await axios.delete(`http://localhost:4000/booking-api/unbook/${bookingId}`)
+      await axios.delete(`${API_URL}/booking-api/unbook/${bookingId}`)
       alert('Booking successfully canceled')
       fetchClassesData()
     } catch (err) {

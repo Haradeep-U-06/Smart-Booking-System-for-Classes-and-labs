@@ -1,93 +1,105 @@
-import React from 'react'
-import { useContext, useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { teacherContextObj } from '../contexts/TeacherContexts'
-import { useUser } from '@clerk/clerk-react'
 import { idContextObj } from '../contexts/Idcontexts'
+import { useUser } from '@clerk/clerk-react'
 import axios from 'axios'
 import './Home.css'
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Home() {
   const { currentTeacher, setCurrentTeacher } = useContext(teacherContextObj)
   const { currentId, setCurrentId } = useContext(idContextObj)
   const { isSignedIn, user, isLoaded } = useUser()
   const navigate = useNavigate()
-  
-  useEffect(() => {
-    const fetchOrCreateTeacher = async () => {
-      if (!user || !isSignedIn){
-        // Clear stored data if not signed in
-        localStorage.removeItem('currentTeacher')
-        localStorage.removeItem('currentId')
-        setCurrentTeacher({ name: "", email: "" })
-        setCurrentId({ id: 0 })
-        return
+
+useEffect(() => {
+  const fetchOrCreateTeacher = async () => {
+    if (!isSignedIn || !user) {
+      localStorage.removeItem('currentTeacher')
+      localStorage.removeItem('currentId')
+      setCurrentTeacher({ _id: "", name: "", email: "" })
+      setCurrentId({ id: 0 })
+      return
+    }
+
+    try {
+      const email = user.emailAddresses[0].emailAddress
+      const isAdmin = email === 'rishivarma.d@gmail.com'
+
+      // 🔹 Find teacher/admin in DB
+      const teacherRes = await axios.get(
+        `${API_URL}/teacher-api/teacher/${email}`
+      )
+
+      let teacherData
+
+      if (teacherRes.data.message === "Teacher Found") {
+        teacherData = teacherRes.data.payload
+      } else {
+        const createRes = await axios.post(
+          `${API_URL}/teacher-api/teachers`,
+          {
+            name: user.firstName,
+            email,
+            role: isAdmin ? "ADMIN" : "TEACHER"
+          }
+        )
+        teacherData = createRes.data.payload
       }
 
-      // Check if user is admin and redirect to admin dashboard
-      if (user.emailAddresses[0]?.emailAddress === 'haradeeps119@gmail.com') {
-        navigate('/admin')
-        return
-      }
-  
-      const updatedTeacher = {
-        ...currentTeacher,
-        name: user?.firstName,
-        email: user?.emailAddresses[0]?.emailAddress
-      };
-      
-      try {
-        // Try to find existing teacher by email
-        const response = await axios.get(`http://localhost:4000/teacher-api/teacher/${updatedTeacher.email}`);
-        
-        if (response.data.message === "Teacher Found") {
-          console.log("Existing teacher found:", response.data.payload);
-          // Update local state with retrieved teacher
-          setCurrentTeacher(updatedTeacher);
-          localStorage.setItem('currentTeacher', JSON.stringify(updatedTeacher));
-        } else {
-          // If teacher not found, create a new one
-          console.log("Creating new teacher...");
-          const createResponse = await axios.post('http://localhost:4000/teacher-api/teachers', updatedTeacher);
-          
-          if (createResponse.data.message === "Teacher created") {
-            console.log("New teacher created:", createResponse.data.payload);
-            setCurrentTeacher(updatedTeacher);
-            localStorage.setItem('currentTeacher', JSON.stringify(updatedTeacher));
-          }
-        }
-        
-        // Fetch or create teacher ID
-        const idResponse = await axios.get(`http://localhost:4000/id-teacher-api/teacherId/${updatedTeacher.email}`);
-        
-        if (idResponse.data.message === "Teacher Found By Email") {
-          console.log("Existing teacher ID found:", idResponse.data.payload.id);
-          setCurrentId(idResponse.data.payload.id);
-          localStorage.setItem('currentId', idResponse.data.payload.id);
-        } else {
-          // Generate a unique ID (you might want to improve this)
-          const newId = Date.now() % 1000; // Simple ID generation
-          const idCreateResponse = await axios.post('http://localhost:4000/id-teacher-api/teachersId', {
+      // ✅ store _id for BOTH admin & teacher
+      setCurrentTeacher({
+        _id: teacherData._id,
+        name: teacherData.name,
+        email: teacherData.email,
+      })
+      localStorage.setItem(
+        'currentTeacher',
+        JSON.stringify({
+          _id: teacherData._id,
+          name: teacherData.name,
+          email: teacherData.email,
+        })
+      )
+
+      // 🔹 GENERATED ID PART (UNCHANGED)
+      const idRes = await axios.get(
+        `${API_URL}/id-teacher-api/teacherId/${email}`
+      )
+
+      if (idRes.data.message === "Teacher Found By Email") {
+        setCurrentId(idRes.data.payload.id)
+        localStorage.setItem('currentId', idRes.data.payload.id)
+      } else {
+        const newId = Date.now() % 1000
+        const idCreateRes = await axios.post(
+          `${API_URL}/id-teacher-api/teachersId`,
+          {
             id: newId,
-            name: updatedTeacher.name,
-            email: updatedTeacher.email
-          });
-          
-          if (idCreateResponse.data.message === "Teacher created") {
-            console.log("New teacher ID created:", idCreateResponse.data.payload.id);
-            setCurrentId(idCreateResponse.data.payload.id);
-            localStorage.setItem('currentId', idCreateResponse.data.payload.id);
+            name: teacherData.name,
+            email: teacherData.email,
           }
-        }
-      } catch (error) {
-        console.error("Error fetching or creating teacher:", error);
+        )
+        setCurrentId(idCreateRes.data.payload.id)
+        localStorage.setItem('currentId', idCreateRes.data.payload.id)
       }
-    };
-    
-    if (isLoaded) {
-      fetchOrCreateTeacher();
+
+      // 🚀 NAVIGATE AFTER DB SAVE
+      if (isAdmin) {
+        navigate('/admin')
+      }
+
+    } catch (err) {
+      console.error("Error loading user:", err)
     }
-  }, [isLoaded, isSignedIn, user, currentTeacher, setCurrentTeacher, setCurrentId, navigate]);
+  }
+
+  if (isLoaded) {
+    fetchOrCreateTeacher()
+  }
+}, [isLoaded, isSignedIn, navigate])
+
 
   return (
     <div className="home-container">

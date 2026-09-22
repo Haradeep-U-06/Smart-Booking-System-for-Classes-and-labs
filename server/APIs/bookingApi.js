@@ -91,11 +91,7 @@ const getAvailableSlots = expressAsyncHandler(async (req, res) => {
         const { date, buildingId, roomId } = req.query;
         
         // Get faculty on leave for this date
-        const leavesResponse = await axios.get('http://localhost:4000/leave-api/on-leave', {
-            params: { date }
-        });
-        
-        const facultyOnLeave = leavesResponse.data.payload;
+        const facultyOnLeave = await LeaveApplication.find({ date });
         const facultyOnLeaveIds = facultyOnLeave.map(f => f.facultyId);
         
         // Get existing bookings

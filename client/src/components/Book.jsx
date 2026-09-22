@@ -4,6 +4,7 @@ import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
 import Calendar from './Calendar'
 import './Book.css'
+const API_URL = import.meta.env.VITE_API_URL
 
 function Book() {
     const { currentTeacher } = useContext(teacherContextObj)
@@ -88,7 +89,7 @@ function Book() {
         
         try {
             console.log("Fetching slots for date:", date);
-            const result = await axios.get(`http://localhost:4000/classroom-api/available-slots/${date}`);
+            const result = await axios.get(`${API_URL}/classroom-api/available-slots/${date}`);
             console.log("Received slots:", result.data.payload.length); 
             setSlotsData(result.data.payload);
             
@@ -97,10 +98,10 @@ function Book() {
                 setFacultyOnLeave(result.data.facultyOnLeave);
             }
             
-            const bookings = await axios.get('http://localhost:4000/booking-api/booking');
+            const bookings = await axios.get(`${API_URL}/booking-api/booking`);
             setBookingsData(bookings.data.payload);
         } catch (err) {
-            console.error("Error fetching slots:", err.message);
+            console.error("Error fetching slots:", err.message);    
             setError("Failed to fetch available slots. Please try refreshing the page.");
             // Don't clear existing data on error
         } finally {
@@ -145,7 +146,7 @@ function Book() {
     async function handleBook(roomId, startTime, endTime) {
         try {
             // Ensure consistent date format when booking
-            await axios.post('http://localhost:4000/booking-api/bookings', {
+            await axios.post(`${API_URL}/booking-api/bookings`, {
                 facultyId: currentId,
                 facultyName: currentTeacher.name,
                 email: currentTeacher.email,
@@ -187,7 +188,7 @@ function Book() {
             );
             
             if (b.length > 0) {
-                await axios.delete(`http://localhost:4000/booking-api/unbook/${b[0]._id}`);
+                await axios.delete(`${API_URL}/booking-api/unbook/${b[0]._id}`);
                 setSuccessMessage('Booking cancelled successfully!');
                 fetchSlots(); // Refresh data after unbooking
             }

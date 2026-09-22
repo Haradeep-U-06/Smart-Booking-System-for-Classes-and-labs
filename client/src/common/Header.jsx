@@ -12,7 +12,7 @@ function Header() {
   const navigate = useNavigate()
 
   // Check if the user is an admin
-  const isAdmin = isSignedIn && user?.emailAddresses[0]?.emailAddress === 'haradeeps119@gmail.com';
+  const isAdmin = isSignedIn && user?.emailAddresses[0]?.emailAddress === 'rishivarma.d@gmail.com';
 
   async function handleSignout() {
     await signOut()
@@ -89,7 +89,7 @@ function Header() {
                   <Link to="manage" className="btn btn-outline-light me-2">Manage</Link>
                   <Link to="leave-application" className="btn btn-outline-light me-2">Apply Leave</Link>
                   <Link to="notifications" className="btn btn-outline-light me-3">
-                    Notifications
+                    Leaves
                   </Link>
                   
                   {/* User profile section */}

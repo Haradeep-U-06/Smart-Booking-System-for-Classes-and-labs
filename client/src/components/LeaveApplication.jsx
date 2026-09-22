@@ -66,7 +66,7 @@ function LeaveApplication() {
         leaveType // Add the leave type to the request
       }
       
-      const response = await axios.post('http://localhost:4000/leave-api/apply', leaveData)
+      const response = await axios.post(`${API_URL}/leave-api/apply`, leaveData)
       
       setSuccessMessage('Your leave application has been submitted successfully')
       // Reset form

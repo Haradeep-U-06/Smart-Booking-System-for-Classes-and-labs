@@ -1,0 +1,19 @@
+.chat-messages{
+    display:flex;
+    flex-direction:column;
+}
+.message {
+  max-width: 60%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.msg.TEACHER{
+  align-self: flex-end;
+}
+
+.msg.ADMIN{
+  align-self: flex-start;
+}

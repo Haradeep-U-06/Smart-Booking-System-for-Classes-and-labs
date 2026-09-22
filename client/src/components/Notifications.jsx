@@ -2,7 +2,9 @@ import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
+import { useNavigate } from 'react-router-dom'
 import './Notifications.css'
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Notifications() {
   const { currentTeacher } = useContext(teacherContextObj)
@@ -11,6 +13,7 @@ function Notifications() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('all')
+  const navigate=useNavigate();
 
   useEffect(() => {
     const fetchLeaveApplications = async () => {
@@ -23,7 +26,7 @@ function Notifications() {
       
       try {
         setIsLoading(true)
-        const response = await axios.get(`http://localhost:4000/leave-api/faculty/${teacherId}`)
+        const response = await axios.get(`${API_URL}/leave-api/faculty/${teacherId}`)
         setLeaveApplications(response.data.payload)
       } catch (err) {
         console.error('Failed to fetch leave applications:', err)
@@ -138,6 +141,11 @@ function Notifications() {
                 <span className={`status-badge ${getStatusBadgeClass(application.status)}`}>
                   {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                 </span>
+            {application.status === 'pending' && (
+              <button className="chat-text" onClick={() => navigate(`/chat/${application._id}`)} title="Open chat">
+                  💬
+              </button>
+            )}
               </div>
               
               <div className="leave-card-body">
@@ -163,6 +171,7 @@ function Notifications() {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
+
                 </div>
               </div>
             </div>

@@ -18,6 +18,8 @@ import Notifications from './components/Notifications.jsx';
 import AdminDashboard from './admin/AdminDashboard.jsx';
 import LeaveRequests from './admin/LeaveRequests.jsx';
 import ClassroomManagement from './admin/ClassroomManagement.jsx';
+import Conversation from './components/Conversation.jsx';
+import AdminChat from './admin/AdminChat.jsx'
 
 const browserRouterObj=createBrowserRouter([
   {
@@ -60,6 +62,10 @@ const browserRouterObj=createBrowserRouter([
         path:"/notifications",
         element:<Notifications/>
       },
+      {
+        path:"/chat/:leaveId",
+        element:<Conversation/>
+      },
       // Admin Routes
       {
         path:"/admin",
@@ -72,6 +78,10 @@ const browserRouterObj=createBrowserRouter([
       {
         path:"/admin/classrooms",
         element:<ClassroomManagement/>
+      },
+      {
+        path:"/admin/chat/:leaveId",
+        element:<AdminChat/>
       }
     ]
   }

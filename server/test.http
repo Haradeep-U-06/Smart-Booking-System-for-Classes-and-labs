@@ -99,9 +99,9 @@ POST http://localhost:4000/booking-api/bookings
 Content-Type: application/json
 
 {
-    "facultyId":1,
-    "facultyName":"Karthik",
-    "email":"karthikgajavelly0017@gmail.com",
+    "facultyId":5,
+    "facultyName":"rishi",
+    "email":"rishivarma.d@gmail.com",
     "classroomId":"67f6dd07e639727a4fa97192",
     "date":"2025-04-07",
     "startTime":"10:00",
@@ -150,10 +150,12 @@ Content-Type: application/json
 {
   "facultyId": 1,
   "facultyName": "Test Faculty",
-  "facultyEmail": "test@faculty.com",
-  "fromDate": "2025-05-10",
-  "toDate": "2025-05-12",
-  "reason": "Personal reasons"
+  "facultyEmail": "23071a05f1@vnrvjiet.in",
+  "fromDate": "2029-05-10",
+  "toDate": "2029-05-12",
+  "reason": "Personal reasons",
+  "leaveType":"CL"
+
 }
 
 ### Get all leave applications for a faculty

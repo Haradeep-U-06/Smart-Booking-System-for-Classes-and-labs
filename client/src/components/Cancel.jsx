@@ -4,6 +4,7 @@ import { teacherContextObj } from '../contexts/TeacherContexts'
 import { idContextObj } from '../contexts/Idcontexts'
 import Calendar from './Calendar' // Import Calendar component
 import './Cancel.css'
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Cancel() {
   const { currentTeacher } = useContext(teacherContextObj)
@@ -70,9 +71,9 @@ const blockOptions = ['A', 'B', 'C', 'D', 'E', 'PEB', 'PG'];
     if (!date) return;
     setIsLoading(true);
     try {
-      const result = await axios.get(`http://localhost:4000/classroom-api/schedule/${date}`);
+      const result = await axios.get(`${API_URL}/classroom-api/schedule/${date}`);
       setSlotsData(result.data.payload);
-      const bookings = await axios.get('http://localhost:4000/booking-api/booking');
+      const bookings = await axios.get(`${API_URL}/booking-api/booking`);
       setBookingsData(bookings.data.payload);
     } catch (err) {
       console.error("Error fetching slots:", err.message);
@@ -84,7 +85,7 @@ const blockOptions = ['A', 'B', 'C', 'D', 'E', 'PEB', 'PG'];
 
   async function handleCancel(roomId, startTime, endTime) {
     try {
-      await axios.put(`http://localhost:4000/classroom-api/cancel-class/${roomId}`, {
+      await axios.put(`${API_URL}/classroom-api/cancel-class/${roomId}`, {
         facultyId: currentId,
         date,
         startTime,
@@ -120,7 +121,7 @@ const blockOptions = ['A', 'B', 'C', 'D', 'E', 'PEB', 'PG'];
         b.startTime === startTime && 
         b.endTime === endTime
       );
-      await axios.delete(`http://localhost:4000/booking-api/unbook/${b[0]._id}`);
+      await axios.delete(`${API_URL}/booking-api/unbook/${b[0]._id}`);
       fetchSlots();
       alert('Booking canceled successfully!');
     } catch(err) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ClassroomManagement.css';
+const API_URL = import.meta.env.VITE_API_URL;
 
 function ClassroomManagement() {
   const [classrooms, setClassrooms] = useState([]);
@@ -41,7 +42,7 @@ function ClassroomManagement() {
   const fetchClassrooms = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://localhost:4000/classroom-api/classroom');
+      const response = await axios.get(`${API_URL}/classroom-api/classroom`);
       setClassrooms(response.data.payload);
     } catch (err) {
       console.error('Failed to fetch classrooms:', err);
@@ -116,7 +117,7 @@ function ClassroomManagement() {
         canceledSlots: []
       };
       
-      await axios.post('http://localhost:4000/classroom-api/classrooms', classroomData);
+      await axios.post(`${API_URL}/classroom-api/classrooms`, classroomData);
       
       setSuccessMessage('Classroom added successfully!');
       
@@ -148,7 +149,7 @@ function ClassroomManagement() {
   const handleDeleteClassroom = async (id) => {
     if (window.confirm('Are you sure you want to delete this classroom? This action cannot be undone.')) {
       try {
-        await axios.delete(`http://localhost:4000/classroom-api/classrooms/${id}`);
+        await axios.delete(`${API_URL}/classroom-api/classrooms/${id}`);
         setSuccessMessage('Classroom deleted successfully!');
         fetchClassrooms();
         

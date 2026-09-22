@@ -1,8 +1,10 @@
 const exp = require('express')
 const leaveApp = exp.Router()
 const LeaveApplication = require('../models/leaveModel')
+const Conversation=require('../models/conversationModel')
+const Teacher=require('../models/teacherModel')
 const expressAsyncHandler = require('express-async-handler');
-
+const {getIO}=require('../sck')
 // Submit a new leave application
 leaveApp.post('/apply', expressAsyncHandler(async(req, res) => {
     try {
@@ -72,11 +74,21 @@ leaveApp.post('/apply', expressAsyncHandler(async(req, res) => {
             createdAt: new Date(),
             updatedAt: new Date()
         });
-        
+        const teacher = await Teacher.findOne({ email: facultyEmail });
         const savedLeave = await newLeave.save();
+        const newConversation=new Conversation({
+            contextType:"LEAVE",
+            contextId:savedLeave._id,
+            participants:{
+                teacherId:teacher._id,
+                adminId:"67f37be961a208e42285beda"
+            },
+            status:"OPEN"
+        })
+        const savedConversation=await newConversation.save();
         
         // Log for debugging
-        console.log("New leave application saved:", savedLeave);
+        console.log({message:"New leave application saved:",payload:{savedLeave,savedConversation}});
         
         res.status(201).send({
             message: "Leave application submitted successfully",
@@ -150,7 +162,15 @@ leaveApp.put('/:id/approve', expressAsyncHandler(async(req, res) => {
         if (!updatedLeave) {
             return res.status(404).send({ error: "Leave application not found" });
         }
-        
+        const cnvt=await Conversation.findOneAndUpdate(
+            {contextType:"LEAVE",contextId:id},
+            {status:"LOCKED"}
+        )
+    const io=getIO()
+    io.to(cnvt._id.toString()).emit("conversation-closed", {
+      conversationId: cnvt._id,
+      status: "CLOSED"
+    });
         res.status(200).send({
             message: "Leave application approved",
             payload: updatedLeave
@@ -184,6 +204,15 @@ leaveApp.put('/:id/reject', expressAsyncHandler(async(req, res) => {
             return res.status(404).send({ error: "Leave application not found" });
         }
         
+         const cnvt=await Conversation.findOneAndUpdate(
+            {contextType:"LEAVE",contextId:id},
+            {status:"LOCKED"}
+        )
+    const io=getIO()
+    io.to(cnvt._id.toString()).emit("conversation-closed", {
+      conversationId:cnvt._id,
+      status: "CLOSED"
+    });
         res.status(200).send({
             message: "Leave application rejected",
             payload: updatedLeave
